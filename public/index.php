@@ -1,6 +1,6 @@
 <?php
 
-require_once '../src/error_handler.php';
+include_once '../src/error_handler.php';
 require_once '../src/bd/BD.php';
 require_once '../src/modelo/Banco.php';
 require_once '../src/modelo/Cliente.php';
