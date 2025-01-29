@@ -1,5 +1,7 @@
 <?php
 
+require_once "../src/excepciones/CuentaNoPerteneceClienteException.php";
+
 /**
  * Clase Cliente 
  */
@@ -135,8 +137,14 @@ class Cliente {
         $this->idCuentas[] = $idCuenta;
     }
 
-    public function tieneCuenta(string $idCuenta) {
-        return (array_search($idCuenta, $this->getCuentas()) !== false);
+    public function existeIdCuenta(string $idCuenta) {
+        $clave = array_search($idCuenta, $this->getIdCuentas());
+        // Si la clave existe en el array, elimina el elemento
+        if ($clave !== false) {
+            return true;
+        } else {
+            throw new CuentaNoPerteneceClienteException($this->dni, $idCuenta);
+        }
     }
 
     public function bajaCuenta(string $idCuenta) {

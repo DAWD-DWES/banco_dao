@@ -6,6 +6,7 @@ require_once '../src/modelo/Banco.php';
 require_once '../src/modelo/Cliente.php';
 require_once '../src/modelo/Cuenta.php';
 require_once '../src/modelo/TipoCuenta.php';
+require_once '../src/modelo/TipoOperacion.php';
 
 $pdo = BD::getConexion();
 
@@ -33,8 +34,6 @@ foreach ($datosClientes as $datosCliente) {
     for ($i = 0; $i < 3; $i++) {
         $tipoCuenta = rand(0, 1) ? TipoCuenta::CORRIENTE : TipoCuenta::AHORROS;
         $idCuenta = $banco->altaCuentaCliente($datosCliente['dni'], $tipoCuenta);
-        $cantidad = rand(0, 500);
-        $banco->ingresoCuentaCliente($datosCliente['dni'], $idCuenta, $cantidad, "Ingreso de $cantidad € en la cuenta");
         // Realizar tres operaciones de ingreso en las cada cuenta
         for ($j = 0; $j < 3; $j++) {
             $tipoOperacion = rand(0, 1) ? TipoOperacion::INGRESO : TipoOperacion::DEBITO;
@@ -60,7 +59,7 @@ try {
     echo $ex->getMessage() . "</br>";
 }
 
- try {
+try {
     $banco->realizaTransferencia('12345678A', '23456789B', ($banco->obtenerCliente('12345678A')->getIdCuentas())[1], ($banco->obtenerCliente('23456789B')->getIdCuentas())[0], 250);
 } catch (SaldoInsuficienteException $ex) {
     echo $ex->getMessage();
@@ -84,7 +83,6 @@ foreach ($clientes as $dniCliente => $cliente) {
 
 $banco->bajaCuentaCliente('12345678A', ($banco->obtenerCliente('12345678A')->getIdCuentas())[0]);
 $banco->bajaCliente('34567890C');
-
 
 // Mostrar las cuentas y saldos de las cuentas de los clientes despues de la baja
 echo "<h1>Clientes y cuentas del banco (baja de una cuenta y un cliente)</h1>";
