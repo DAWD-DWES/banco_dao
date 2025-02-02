@@ -2,8 +2,12 @@
 
 class SaldoInsuficienteException extends Exception {
 
-    public function __construct() {
-        $message = "No hay suficiente saldo en la cuenta";
+    private $idCuenta;
+
+    public function __construct(string $idCuenta) {
+        $this->idCuenta = $idCuenta;
+
+        $message = "No hay suficiente saldo en la cuenta $idCuenta";
         parent::__construct($message);
     }
 }

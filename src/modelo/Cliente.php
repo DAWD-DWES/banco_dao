@@ -9,9 +9,9 @@ class Cliente {
 
     /**
      * ID del cliente
-     * @var string
+     * @var int
      */
-    private string $id;
+    private int $id;
 
     /**
      * DNI del cliente
@@ -39,9 +39,9 @@ class Cliente {
 
     /**
      * Fecha de nacimiento del cliente
-     * @var DateTime
+     * @var string
      */
-    private $fechaNacimiento;
+    private string $fechaNacimiento;
 
     /**
      * Teléfono del cliente
@@ -55,14 +55,14 @@ class Cliente {
      */
     private array $idCuentas;
 
-    public function __construct(string $dni = null, string $nombre = null, string $apellido1 = null, string $apellido2 = null, string $telefono = null, string $fechaNacimiento = null) {
+    public function __construct(string $dni = null, string $nombre = null, string $apellido1 = null, string $apellido2 = null, string $telefono = null, Datetime $fechaNacimiento = null) {
         if (func_num_args() > 0) {
             $this->setDni($dni);
             $this->setNombre($nombre);
             $this->setApellido1($apellido1);
             $this->setApellido2($apellido2);
             $this->setTelefono($telefono);
-            $this->setFechaNacimiento(new DateTime($fechaNacimiento));
+            $this->setFechaNacimiento($fechaNacimiento);
         } 
         $this->setIdCuentas([]);
     }
@@ -93,8 +93,8 @@ class Cliente {
     }
 
     //Cuidado con el tipo
-    public function getFechaNacimiento() {
-        return $this->fechaNacimiento;
+    public function getFechaNacimiento(): DateTime {
+        return new DateTime($this->fechaNacimiento);
     }
 
     public function getIdCuentas(): array {
@@ -126,7 +126,7 @@ class Cliente {
     }
 
     public function setFechaNacimiento(DateTime $fechaNacimiento) {
-        $this->fechaNacimiento = $fechaNacimiento;
+        $this->fechaNacimiento = $fechaNacimiento->format('Y-m-d');
     }
 
     public function setIdCuentas(array $idCuentas) {

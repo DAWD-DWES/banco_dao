@@ -15,7 +15,7 @@ class Cuenta implements IProductoBancario {
 
     /**
      * Id de la cuenta
-     * @var string
+     * @var int
      */
     private int $id;
 
@@ -26,20 +26,20 @@ class Cuenta implements IProductoBancario {
     private float $saldo;
 
     /**
-     * Fecha y hora de creación de la cuenta
-     * @var DateTime
+     * Timestamp de Fecha y hora de creación de la cuenta
+     * @var int
      */
-    private DateTime $fechaCreacion;
+    private int $fechaCreacion;
 
     /**
      * Tipo de la cuenta
-     * @var TipoCuenta
+     * @var string
      */
-    private TipoCuenta $tipo;
+    private string $tipo;
 
     /**
      * Id del cliente dueño de la cuenta
-     * @var string
+     * @var int
      */
     private int $idCliente;
 
@@ -49,18 +49,18 @@ class Cuenta implements IProductoBancario {
      */
     private array $operaciones;
 
-    public function __construct(OperacionDAO $operacionDAO, TipoCuenta $tipo, string $idCliente) {
+    public function __construct(OperacionDAO $operacionDAO, TipoCuenta $tipo, int $idCliente, float $saldo) {
         if (func_num_args() > 0) {
             $this->operacionDAO = $operacionDAO;
-            $this->tipo = $tipo;
-            $this->setSaldo(0);
+            $this->setTipo($tipo);
+            $this->setSaldo($saldo);
             $this->setOperaciones([]);
-            $this->setFechaCreacion(new DateTime());
+            $this->setFechaCreacion(new DateTime('now'));
             $this->setIdCliente($idCliente);
         }
     }
 
-    public function getId(): string {
+    public function getId(): int {
         return $this->id;
     }
 
@@ -69,14 +69,15 @@ class Cuenta implements IProductoBancario {
     }
 
     public function getFechaCreacion(): DateTime {
-        return $this->fechaCreacion;
+        $fecha = new DateTime();
+        return $fecha->setTimestamp($this->fechaCreacion);
     }
 
     public function getTipo(): TipoCuenta {
-        return $this->tipo;
+        return TipoCuenta::from($this->tipo);
     }
 
-    public function getIdCliente(): string {
+    public function getIdCliente(): int {
         return $this->idCliente;
     }
 
@@ -84,24 +85,24 @@ class Cuenta implements IProductoBancario {
         return $this->operaciones;
     }
 
-    public function setId($id) {
+    public function setId(int $id) {
         $this->id = $id;
     }
 
-    public function setSaldo($saldo) {
+    public function setSaldo(float $saldo) {
         $this->saldo = $saldo;
     }
 
-    public function setFechaCreacion($fechaCreacion) {
-        $this->fechaCreacion = $fechaCreacion;
+    public function setFechaCreacion(DateTime $fechaCreacion) {
+        $this->fechaCreacion = $fechaCreacion->getTimestamp();
     }
 
-    public function setIdCliente($idCliente) {
+    public function setIdCliente(int $idCliente) {
         $this->idCliente = $idCliente;
     }
 
-    public function setTipoCuenta($tipoCuenta) {
-        $this->tipoCuenta = $tipoCuenta;
+    public function setTipo(TipoCuenta $tipoCuenta) {
+        $this->tipo = $tipoCuenta->value;
     }
 
     public function setOperaciones(array $operaciones) {
@@ -138,7 +139,6 @@ class Cuenta implements IProductoBancario {
             throw new SaldoInsuficienteException($this->getId());
         }
     }
-    
 
     public function __toString() {
         $saldoFormatted = number_format($this->getSaldo(), 2); // Formatear el saldo con dos decimales
@@ -146,8 +146,9 @@ class Cuenta implements IProductoBancario {
 
         return "Cuenta ID: {$this->getId()}</br>" .
                 "Tipo Cuenta: " . get_class($this) . "</br>" .
-                // "Cliente ID: {$this->getIdCliente()}</br>" .
+                "Cliente ID: {$this->getIdCliente()}</br>" .
                 "Saldo: $saldoFormatted</br>" .
+                "Fecha Creación: {$this->getFechaCreacion()->format('Y-m-d')}</br>" .
                 "$operacionesStr";
     }
 

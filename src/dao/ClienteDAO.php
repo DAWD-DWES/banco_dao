@@ -1,13 +1,12 @@
 <?php
 
-require_once '../src/dao/IDAO.php';
 require_once '../src/modelo/Cliente.php';
 require_once '../src/dao/CuentaDAO.php';
 
 /**
  * Clase ClienteDAO
  */
-class ClienteDAO implements IDAO {
+class ClienteDAO {
 
     /**
      * Conexión a la base de datos
@@ -32,15 +31,14 @@ class ClienteDAO implements IDAO {
      * @param int $id
      * @return Cliente|null
      */
-    public function obtenerPorId(int $id): ?Cliente {
-        $sql = "SELECT cliente_id as id, dni, nombre, apellido1, apellido2, fecha_nacimiento as fechaNacimiento, telefono FROM clientes WHERE cliente_id = :id;";
+    public function recuperaPorId(int $id): ?Cliente {
+        $sql = "SELECT id, dni, nombre, apellido1, apellido2, fecha_nacimiento as fechaNacimiento, telefono FROM clientes WHERE id = :id;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id' => $id]);
         $stmt->setFetchMode(PDO::FETCH_CLASS, 'Cliente');
         $cliente = $stmt->fetch();
         if ($cliente) {
-            $this->inicializarPostPDO($cliente);
-            $cliente->setIdCuentas($this->cuentaDAO->obtenerIdCuentasPorClienteId($this->getId()));
+            $cliente->setIdCuentas($this->cuentaDAO->recuperaIdCuentasPorClienteId($this->getId()));
         }
         return $cliente ?: null;
     }
@@ -51,69 +49,49 @@ class ClienteDAO implements IDAO {
      * @param string $dni
      * @return Cliente|null
      */
-    public function obtenerPorDNI(string $dni): ?Cliente {
-        $sql = "SELECT cliente_id as id, dni, nombre, apellido1, apellido2, fecha_nacimiento as fechaNacimiento, telefono FROM clientes WHERE dni = :dni;";
+    public function recuperaPorDNI(string $dni): ?Cliente {
+        $sql = "SELECT id, dni, nombre, apellido1, apellido2, fecha_nacimiento as fechaNacimiento, telefono FROM clientes WHERE dni = :dni;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['dni' => $dni]);
         $stmt->setFetchMode(PDO::FETCH_CLASS, 'Cliente');
         $cliente = $stmt->fetch();
         if ($cliente) {
-            $this->inicializarPostPDO($cliente);
-            $cliente->setIdCuentas($this->cuentaDAO->obtenerIdCuentasPorClienteId($cliente->getId()));
+            $cliente->setIdCuentas($this->cuentaDAO->recuperaIdCuentasPorClienteId($cliente->getId()));
         }
         return $cliente ?: null;
     }
 
     /**
-     * Cambia el valor de la propiedad de FechaNacimiento de string a DateTime
-     * @param Cliente $cliente
-     * @return Cliente
-     */
-    private function inicializarPostPDO(Cliente $cliente): Cliente {
-        if (is_string($cliente->getFechaNacimiento())) {
-            $cliente->setFechaNacimiento(new DateTime($cliente->getFechaNacimiento()));
-        }
-        return $cliente;
-    }
-
-    /**
      * Obtiene la lista de todos los clientes
-     * @return type
+     * @return array
      */
-    public function obtenerTodos(): array {
-        $sql = "SELECT cliente_id as id, dni, nombre, apellido1, apellido2, fecha_nacimiento as fechaNacimiento, telefono FROM clientes;";
+    public function recuperaTodos(): array {
+        $sql = "SELECT id, dni, nombre, apellido1, apellido2, fecha_nacimiento as fechaNacimiento, telefono FROM clientes;";
         $stmt = $this->pdo->query($sql);
         $clientes = $stmt->fetchAll(PDO::FETCH_CLASS, 'Cliente');
         array_walk($clientes, function ($cliente) {
-            $this->inicializarPostPDO($cliente);
-            $cliente->setIdCuentas($this->cuentaDAO->obtenerIdCuentasPorClienteId($cliente->getId()));
+            $cliente->setIdCuentas($this->cuentaDAO->recuperaIdCuentasPorClienteId($cliente->getId()));
         });
         return $clientes;
     }
 
     /**
      * Crea un registro de una instancia de cliente
-     * @param object $object Cliente para crear un registro en la BD
-     * @throws InvalidArgumentException
+     * @param Cliente $cliente Cliente para crear un registro en la BD
      */
-    public function crear(object $object): bool {
+    public function crear(Cliente $cliente): bool {
         $sql = "INSERT INTO clientes (dni, nombre, apellido1, apellido2, fecha_nacimiento, telefono) VALUES (:dni, :nombre, :apellido1, :apellido2, :fecha_nacimiento, :telefono);";
-        if ($object instanceof Cliente) {
-            $cliente = $object;
-            $stmt = $this->pdo->prepare($sql);
-            $result = $stmt->execute([
-                'dni' => $cliente->getDni(),
-                'nombre' => $cliente->getNombre(),
-                'apellido1' => $cliente->getApellido1(),
-                'apellido2' => $cliente->getApellido2(),
-                'fecha_nacimiento' => $cliente->getFechaNacimiento()->format('Y-m-d'),
-                'telefono' => $cliente->getTelefono()
-            ]);
-            if ($result) {
-                $cliente->setId($this->pdo->lastInsertId());
-            }
-        } else {
-            throw new InvalidArgumentException('Se esperaba un objeto de tipo Cliente.');
+        $stmt = $this->pdo->prepare($sql);
+        $result = $stmt->execute([
+            'dni' => $cliente->getDni(),
+            'nombre' => $cliente->getNombre(),
+            'apellido1' => $cliente->getApellido1(),
+            'apellido2' => $cliente->getApellido2(),
+            'fecha_nacimiento' => ($cliente->getFechaNacimiento())->format('Y-m-d'),
+            'telefono' => $cliente->getTelefono()
+        ]);
+        if ($result) {
+            $cliente->setId($this->pdo->lastInsertId());
         }
         return $result;
     }
@@ -121,27 +99,20 @@ class ClienteDAO implements IDAO {
     /**
      * Modifica un registro de una instancia de clienteç
      * 
-     * @param object $object Cliente para modificar un registro en el BD
-     *
-     * @throws InvalidArgumentException
+     * @param Cliente $cliente Cliente para modificar un registro en el BD
      */
     public function modificar(object $object): bool {
-        $sql = "UPDATE clientes SET dni = :dni, nombre = :nombre, apellido1 = :apellido1, apellido2 = :apellido2, fecha_nacimiento = :fecha_nacimiento, telefono = :telefono WHERE cliente_id = :id;";
-        if ($object instanceof Cliente) {
-            $cliente = $object;
-            $stmt = $this->pdo->prepare($sql);
-            $result = $stmt->execute([
-                'id' => $cliente->getId(),
-                'dni' => $cliente->getDni(),
-                'nombre' => $cliente->getNombre(),
-                'apellido1' => $cliente->getApellido1(),
-                'apellido2' => $cliente->getApellido2(),
-                'fecha_nacimiento' => $cliente->getFechaNacimiento()->format('Y-m-d'),
-                'telefono' => $cliente->getTelefono()
-            ]);
-        } else {
-            throw new InvalidArgumentException('Se esperaba un objeto de tipo Cliente.');
-        }
+        $sql = "UPDATE clientes SET dni = :dni, nombre = :nombre, apellido1 = :apellido1, apellido2 = :apellido2, fecha_nacimiento = :fecha_nacimiento, telefono = :telefono WHERE id = :id;";
+        $stmt = $this->pdo->prepare($sql);
+        $result = $stmt->execute([
+            'id' => $cliente->getId(),
+            'dni' => $cliente->getDni(),
+            'nombre' => $cliente->getNombre(),
+            'apellido1' => $cliente->getApellido1(),
+            'apellido2' => $cliente->getApellido2(),
+            'fecha_nacimiento' => ($cliente->getFechaNacimiento())->format('Y-m-d'),
+            'telefono' => $cliente->getTelefono()
+        ]);
         return $result;
     }
 
@@ -150,7 +121,7 @@ class ClienteDAO implements IDAO {
      * @param int $id Identificador del cliente a eliminar de la BD
      */
     public function eliminar(int $id): bool {
-        $sql = "DELETE FROM clientes WHERE cliente_id = :id;";
+        $sql = "DELETE FROM clientes WHERE id = :id;";
         $stmt = $this->pdo->prepare($sql);
         $result = $stmt->execute(['id' => $id]);
         return $result;

@@ -7,6 +7,9 @@ require_once '../src/modelo/Cliente.php';
 require_once '../src/modelo/Cuenta.php';
 require_once '../src/modelo/TipoCuenta.php';
 require_once '../src/modelo/TipoOperacion.php';
+require_once '../src/dao/OperacionDAO.php';
+require_once '../src/dao/CuentaDAO.php';
+require_once '../src/dao/ClienteDAO.php';
 
 $pdo = BD::getConexion();
 
@@ -14,11 +17,8 @@ $operacionDAO = new OperacionDAO($pdo);
 $cuentaDAO = new CuentaDAO($pdo, $operacionDAO);
 $clienteDAO = new ClienteDAO($pdo, $cuentaDAO);
 
-$banco = new Banco($clienteDAO, $cuentaDAO, $operacionDAO, "Midas");
+$banco = new Banco($clienteDAO, $cuentaDAO, $operacionDAO, "Midas", [3, 1000], [1.5, 0.5]);
 
-$banco->setComisionCC(5);
-$banco->setMinSaldoComisionCC(1000);
-$banco->setInteresCA(2);
 
 // Datos de clientes de ejemplo
 $datosClientes = [

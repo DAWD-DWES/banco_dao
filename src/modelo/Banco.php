@@ -18,7 +18,7 @@ require_once "../src/excepciones/SaldoInsuficienteException.php";
  */
 class Banco {
 
-    /**
+     /**
      * Comisión de mantenimiento de la cuenta corriente en euros
      * @var float
      */
@@ -37,6 +37,12 @@ class Banco {
     private float $interesCA = 0;
 
     /**
+     * Interés de la cuenta de ahorros en porcentaje
+     * @var float
+     */
+    private float $bonificacionCA = 0;
+
+    /**
      * Nombre del banco
      * @var string
      */
@@ -44,32 +50,38 @@ class Banco {
 
     /**
      * DAO para persistir clientes
-     * @var IDAO
+     * @var ClienteDAO
      */
-    private IDAO $clienteDAO;
+    private ClienteDAO $clienteDAO;
 
     /**
      * DAO para persistir cuentas
-     * @var IDAO
+     * @var CuentaDAO
      */
-    private IDAO $cuentaDAO;
+    private CuentaDAO $cuentaDAO;
 
     /**
      * DAO para persistir operaciones
-     * @var IDAO
+     * @var OperacionDAO
      */
-    private IDAO $operacionDAO;
+    private OperacionDAO $operacionDAO;
 
     /**
      * Constructor de la clase Banco
      * 
      * @param string $nombre Nombre del banco
      */
-    public function __construct(IDAO $clienteDAO, IDAO $cuentaDAO, IDAO $operacionDAO, string $nombre) {
-        $this->setNombre($nombre);
+    public function __construct(ClienteDAO $clienteDAO, CuentaDAO $cuentaDAO, OperacionDAO $operacionDAO, ...$args) {
         $this->clienteDAO = $clienteDAO;
         $this->cuentaDAO = $cuentaDAO;
         $this->operacionDAO = $operacionDAO;
+        $this->setNombre($args[0] ?? "Desconocido");
+        $this->setComisionCC($args[1][0] ?? 0);
+        $this->setMinSaldoComisionCC($args[1][1] ?? 0);
+        $this->setInteresCA($args[2][0] ?? 0);
+        $this->setBonificacionCA($args[2][1] ?? 0);
+        $this->setClientes();
+        $this->setCuentas();
     }
 
     /**
@@ -87,7 +99,7 @@ class Banco {
      * @return array
      */
     public function obtenerClientes(): array {
-        return $this->clienteDAO->obtenerTodos();
+        return $this->clienteDAO->recuperaTodos();
     }
 
     /**
@@ -96,7 +108,7 @@ class Banco {
      * @return array
      */
     public function obtenerCuentas(): array {
-        return $this->cuentaDAO->obtenerTodos();
+        return $this->cuentaDAO->recuperaTodos();
     }
 
     /**
@@ -124,6 +136,15 @@ class Banco {
      */
     public function getInteresCA(): float {
         return $this->interesCA;
+    }
+    
+    /**
+     * Obtiene la bonificacion de cuenta de ahorroa
+     * 
+     * @return float
+     */
+    public function getBonificacionCA(): float {
+        return $this->bonificacionCA;
     }
 
     /**
@@ -190,6 +211,15 @@ class Banco {
     public function setInteresCA(float $interesCA) {
         $this->interesCA = $interesCA;
     }
+    
+    /**
+     * Establece la bonificacion de la cuenta de ahorros del banco
+     * 
+     * @param float $bonificacionCA Interés del banco
+     */
+    public function setBonificacionCA(float $bonificacionCA): void {
+        $this->bonificacionCA = $bonificacionCA;
+    }
 
     /**
      * Realiza un alta de cliente del banco
@@ -203,7 +233,7 @@ class Banco {
      * @return bool
      */
     public function altaCliente(string $dni, string $nombre, string $apellido1, string $apellido2, string $telefono, string $fechaNacimiento): void {
-        $cliente = new Cliente($dni, $nombre, $apellido1, $apellido2, $telefono, $fechaNacimiento);
+        $cliente = new Cliente($dni, $nombre, $apellido1, $apellido2, $telefono, new DateTime($fechaNacimiento));
         $this->clienteDAO->crear($cliente);
     }
 
@@ -213,7 +243,7 @@ class Banco {
      * @param string $dni
      */
     public function bajaCliente(string $dni) {
-        $cliente = $this->clienteDAO->obtenerPorDni($dni);
+        $cliente = $this->clienteDAO->recuperaPorDni($dni);
         $cuentas = $cliente->getIdCuentas();
         foreach ($cuentas as $idCuenta) {
             $this->cuentaDAO->eliminar($idCuenta);
@@ -229,7 +259,7 @@ class Banco {
      * @throws ClienteNoEncontradoException
      */
     public function obtenerCliente(string $dni): ?Cliente {
-        $cliente = $this->clienteDAO->obtenerPorDNI($dni);
+        $cliente = $this->clienteDAO->recuperaPorDNI($dni);
         if ($cliente) {
             return $cliente;
         } else {
@@ -245,7 +275,7 @@ class Banco {
      */
     public function existeCliente(string $dni): bool {
         $clienteDAO = new ClienteDAO($this->pdo);
-        $cliente = $clienteDAO->obtenerPorDNI($dni);
+        $cliente = $clienteDAO->recuperaPorDNI($dni);
         return $cliente;
     }
 
@@ -274,7 +304,7 @@ class Banco {
      */
     public function bajaCuentaCliente(string $dni, int $idCuenta) {
         $cliente = $this->obtenerCliente($dni);
-        $cuenta = $this->cuentaDAO->obtenerPorId($idCuenta);
+        $cuenta = $this->cuentaDAO->recuperaPorId($idCuenta);
         $this->cuentaDAO->eliminar($cuenta->getId());
     }
 
@@ -297,7 +327,7 @@ class Banco {
      * @return type
      */
     public function obtenerCuenta(int $idCuenta): ?Cuenta {
-        $cuenta = $this->cuentaDAO->obtenerPorId($idCuenta);
+        $cuenta = $this->cuentaDAO->recuperaPorId($idCuenta);
         if ($cuenta) {
             return $cuenta;
         } else {
