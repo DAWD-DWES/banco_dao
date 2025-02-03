@@ -49,7 +49,7 @@ abstract class Cuenta implements IProductoBancario {
      */
     private array $operaciones;
 
-    public function __construct(OperacionDAO $operacionDAO, TipoCuenta $tipo, int $idCliente, float $saldo) {
+    public function __construct(OperacionDAO $operacionDAO, int $idCliente, TipoCuenta $tipo, float $saldo) {
         if (func_num_args() > 0) {
             $this->operacionDAO = $operacionDAO;
             $this->setTipo($tipo);
@@ -101,8 +101,8 @@ abstract class Cuenta implements IProductoBancario {
         $this->idCliente = $idCliente;
     }
 
-    public function setTipo(TipoCuenta $tipoCuenta) {
-        $this->tipo = $tipoCuenta->value;
+    public function setTipo(TipoCuenta $tipo) {
+        $this->tipo = $tipo->value;
     }
 
     public function setOperaciones(array $operaciones) {
@@ -127,7 +127,7 @@ abstract class Cuenta implements IProductoBancario {
      * 
      * @param type $cantidad Cantidad de dinero a retirar
      * @param type $descripcion Descripcion del debito
-     * @throws SaldoInsuficienteException
+     *
      */
     abstract public function debito(float $cantidad, string $descripcion): void;
 
@@ -147,7 +147,7 @@ abstract class Cuenta implements IProductoBancario {
      * Agrega operación a la lista de operaciones de la cuenta
      * @param type $operacion Operación a añadir
      */
-    private function agregaOperacion(Operacion $operacion) {
+    protected function agregaOperacion(Operacion $operacion) {
         $this->operaciones[] = $operacion;
     }
 }

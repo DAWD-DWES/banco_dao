@@ -76,8 +76,8 @@ class CuentaDAO {
      */
     private function crearCuenta(object $datosCuenta): CuentaCorriente|CuentaAhorros {
         $cuenta = match ($datosCuenta?->tipo) {
-            TipoCuenta::AHORROS->value => (new CuentaAhorros($this->operacionDAO, TipoCuenta::AHORROS, $datosCuenta->idCliente, $datosCuenta->saldo, $datosCuenta->libreta)),
-            TipoCuenta::CORRIENTE->value => (new CuentaCorriente($this->operacionDAO, TipoCuenta::CORRIENTE, $datosCuenta->idCliente, $datosCuenta->saldo)),
+            TipoCuenta::AHORROS->value => (new CuentaAhorros($this->operacionDAO, $datosCuenta->idCliente, $datosCuenta->saldo, $datosCuenta->libreta)),
+            TipoCuenta::CORRIENTE->value => (new CuentaCorriente($this->operacionDAO, $datosCuenta->idCliente, $datosCuenta->saldo)),
             default => null
         };
         $cuenta->setId($datosCuenta->id);
@@ -91,14 +91,22 @@ class CuentaDAO {
      * @param Cuenta $cuenta
      */
     public function crear(Cuenta $cuenta): bool {
-        $sql = "INSERT INTO cuentas (cliente_id, tipo, saldo, fecha_creacion) VALUES (:cliente_id, :tipo, :saldo, FROM_UNIXTIME(:fechaCreacion));";
-        $stmt = $this->pdo->prepare($sql);
+        $sqlCuentaAhorros = "INSERT INTO cuentas (cliente_id, tipo, saldo, fecha_creacion, libreta) VALUES (:cliente_id, :tipo, :saldo, FROM_UNIXTIME(:fechaCreacion), :libreta);";
+        $sqlCuentaCorriente = "INSERT INTO cuentas (cliente_id, tipo, saldo, fecha_creacion) VALUES (:cliente_id, :tipo, :saldo, FROM_UNIXTIME(:fechaCreacion));";
         $params = [
             'cliente_id' => $cuenta->getIdCliente(),
             'tipo' => $cuenta->getTipo()->value,
             'saldo' => $cuenta->getSaldo(),
             'fechaCreacion' => ($cuenta->getFechaCreacion())->format('Y-m-d')
         ];
+        if ($cuenta instanceof CuentaAhorros) {
+            $sql = $sqlCuentaAhorros;
+            $params['libreta'] = (int) $cuenta->getLibreta();
+        }
+        else {
+            $sql = $sqlCuentaCorriente;
+        }
+        $stmt = $this->pdo->prepare($sql);
         $result = $stmt->execute($params);
         if ($result) {
             $cuenta->setId($this->pdo->lastInsertId());

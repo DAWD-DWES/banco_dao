@@ -9,12 +9,12 @@ require_once "../src/dao/OperacionDAO.php";
  */
 class CuentaAhorros extends Cuenta {
 
-    private bool $libreta;
+    private int $libreta;
 
-    public function __construct(OperacionDAO $operacionDAO, string $idCliente, float $saldo = 0, float $bonificacion = 0, bool $libreta = false) {
-        $this->libreta = $libreta;
+    public function __construct(OperacionDAO $operacionDAO, int $idCliente, float $saldo = 0, float $bonificacion = 0, bool $libreta = false) {
+        $this->libreta = (int)$libreta;
         $saldoBonificado = $saldo * (1 + ($bonificacion / 100));
-        parent::__construct($operacionDAO, $idCliente, $saldoBonificado);
+        parent::__construct($operacionDAO, $idCliente, TipoCuenta::AHORROS, $saldoBonificado);
     }
 
     public function ingreso(float $cantidad, string $descripcion, float $bonificacion = 0): void {
@@ -30,20 +30,20 @@ class CuentaAhorros extends Cuenta {
      */
     public function debito(float $cantidad, string $descripcion): void {
         if ($cantidad <= $this->getSaldo()) {
-            $operacion = new Operacion(TipoOperacion::DEBITO, $cantidad, $descripcion);
+            $operacion = new Operacion($this->getId(), TipoOperacion::DEBITO, $cantidad, $descripcion);
             $this->agregaOperacion($operacion);
             $this->setSaldo($this->getSaldo() - $cantidad);
         } else {
-            throw new SaldoInsuficienteException($this->getId());
+            throw new SaldoInsuficienteException($this->getId(), $cantidad);
         }
     }
 
     public function getLibreta(): bool {
-        return $this->libreta;
+        return (bool)$this->libreta;
     }
 
     public function setLibreta(bool $libreta): void {
-        $this->libreta = $libreta;
+        $this->libreta = (int)$libreta;
     }
 
     public function aplicaInteres(float $interes): void {

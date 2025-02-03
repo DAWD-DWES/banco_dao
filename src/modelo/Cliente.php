@@ -63,10 +63,9 @@ class Cliente {
             $this->setApellido2($apellido2);
             $this->setTelefono($telefono);
             $this->setFechaNacimiento($fechaNacimiento);
-        } 
+        }
         $this->setIdCuentas([]);
     }
-
 
     public function getId(): int {
         return $this->id;
@@ -140,19 +139,15 @@ class Cliente {
     public function existeIdCuenta(string $idCuenta) {
         $clave = array_search($idCuenta, $this->getIdCuentas());
         // Si la clave existe en el array, elimina el elemento
-        if ($clave !== false) {
-            return true;
-        } else {
-            throw new CuentaNoPerteneceClienteException($this->dni, $idCuenta);
-        }
+        return ($clave !== false);
     }
 
     public function bajaCuenta(string $idCuenta) {
-        $clave = array_search($idCuenta, $this->getCuentas());
+        $clave = array_search($idCuenta, $this->getIdCuentas());
 // Si la clave existe en el array, elimina el elemento
         if ($clave !== false) {
-            unset($this->getCuentas[$clave]);
+            unset($this->getIdCuentas[$clave]);
         }
-        $this->setCuentas(array_values($this->getCuentas()));
+        $this->setIdCuentas(array_values($this->getIdCuentas()));
     }
 }
