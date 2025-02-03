@@ -9,7 +9,7 @@ require_once "../src/excepciones/SaldoInsuficienteException.php";
 /**
  * Clase Cuenta 
  */
-class Cuenta implements IProductoBancario {
+abstract class Cuenta implements IProductoBancario {
 
     private OperacionDAO $operacionDAO;
 
@@ -129,16 +129,7 @@ class Cuenta implements IProductoBancario {
      * @param type $descripcion Descripcion del debito
      * @throws SaldoInsuficienteException
      */
-    public function debito(float $cantidad, string $descripcion): void {
-        if ($cantidad <= $this->getSaldo()) {
-            $operacion = new Operacion($this->getId(), TipoOperacion::DEBITO, $cantidad, $descripcion);
-            $this->operacionDAO->crear($operacion);
-            $this->agregaOperacion($operacion);
-            $this->setSaldo($this->getSaldo() - $cantidad);
-        } else {
-            throw new SaldoInsuficienteException($this->getId());
-        }
-    }
+    abstract public function debito(float $cantidad, string $descripcion): void;
 
     public function __toString() {
         $saldoFormatted = number_format($this->getSaldo(), 2); // Formatear el saldo con dos decimales
