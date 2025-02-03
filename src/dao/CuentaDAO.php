@@ -34,7 +34,7 @@ class CuentaDAO {
      * @return CuentaCorriente|CuentaAhorros|null
      */
     public function recuperaPorId(int $id): CuentaCorriente|CuentaAhorros|null {
-        $sql = "SELECT id, cliente_id as idCliente, tipo, saldo, UNIX_TIMESTAMP(fecha_creacion) as fechaCreacion FROM cuentas WHERE id = :id;";
+        $sql = "SELECT id, cliente_id as idCliente, tipo, saldo, UNIX_TIMESTAMP(fecha_creacion) as fechaCreacion, libreta FROM cuentas WHERE id = :id;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id' => $id]);
         $stmt->setFetchMode(PDO::FETCH_OBJ);
@@ -62,7 +62,7 @@ class CuentaDAO {
      * @return array
      */
     public function recuperaTodos(): array {
-        $sql = "SELECT id as id, cliente_id as idCliente, tipo, saldo, UNIX_TIMESTAMP(fecha_creacion) as fechaCreacion FROM cuentas;";
+        $sql = "SELECT id as id, cliente_id as idCliente, tipo, saldo, UNIX_TIMESTAMP(fecha_creacion) as fechaCreacion, libreta FROM cuentas;";
         $stmt = $this->pdo->query($sql);
         $cuentasDatos = $stmt->fetchAll(PDO::FETCH_OBJ);
         return array_map(fn($datos) => $this->crearCuenta($datos), $cuentasDatos);
@@ -76,7 +76,7 @@ class CuentaDAO {
      */
     private function crearCuenta(object $datosCuenta): CuentaCorriente|CuentaAhorros {
         $cuenta = match ($datosCuenta?->tipo) {
-            TipoCuenta::AHORROS->value => (new CuentaAhorros($this->operacionDAO, TipoCuenta::AHORROS, $datosCuenta->idCliente, $datosCuenta->saldo)),
+            TipoCuenta::AHORROS->value => (new CuentaAhorros($this->operacionDAO, TipoCuenta::AHORROS, $datosCuenta->idCliente, $datosCuenta->saldo, $datosCuenta->libreta)),
             TipoCuenta::CORRIENTE->value => (new CuentaCorriente($this->operacionDAO, TipoCuenta::CORRIENTE, $datosCuenta->idCliente, $datosCuenta->saldo)),
             default => null
         };

@@ -1,14 +1,17 @@
 <?php
 
 require_once "../src/modelo/Cuenta.php";
+require_once "../src/modelo/TipoCuenta.php";
+require_once "../src/dao/OperacionDAO.php";
+
 
 /**
  * Clase CuentaCorriente 
  */
 class CuentaCorriente extends Cuenta {
 
-    public function __construct(string $idCliente, float $cantidad = 0) {
-        parent::__construct($idCliente, $cantidad);
+    public function __construct(OperacionDAO $operacionDAO, string $idCliente, float $cantidad = 0) {
+        parent::__construct($operacionDAO, $idCliente, TipoCuenta::CORRIENTE, $cantidad);
     }
     
     /**

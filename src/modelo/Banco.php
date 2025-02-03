@@ -278,20 +278,31 @@ class Banco {
         $cliente = $clienteDAO->recuperaPorDNI($dni);
         return $cliente;
     }
-
+    
+    
     /**
-     * Crea una cuenta de un cliente del banco
+     * Crea una cuenta corriente de un cliente del banco
      * 
      * @param string $dni
      * @param float $saldo
      */
-    public function altaCuentaCliente(string $dni, TipoCuenta $tipo = TipoCuenta::CORRIENTE): string {
-        $cliente = $this->obtenerCliente($dni);
-        if ($tipo == TipoCuenta::CORRIENTE) {
-            $cuenta = new CuentaCorriente($this->operacionDAO, TipoCuenta::CORRIENTE, $cliente->getId());
-        } elseif ($tipo == TipoCuenta::AHORROS) {
-            $cuenta = new CuentaAhorros($this->operacionDAO, TipoCuenta::AHORROS, $cliente->getId());
-        }
+    public function altaCuentaCorrienteCliente(string $dni, float $saldo = 0): string {
+        $cliente = $this->getCliente($dni);
+        $cuenta = new CuentaCorriente($this->operacionDAO, $dni, $saldo);
+        $this->cuentaDAO->crear($cuenta);
+        return $cuenta->getId();
+    }
+
+    
+    /**
+     * Crea una cuenta de ahorros de un cliente del banco
+     * 
+     * @param string $dni
+     * @param float $saldo
+     */
+    public function altaCuentaAhorrosCliente(string $dni, float $saldo = 0, bool $libreta = false): string {
+        $cliente = $this->getCliente($dni);
+        $cuenta = new CuentaAhorros($this->operacionDAO, $dni, $saldo, $this->getBonificacionCA(), $libreta);
         $this->cuentaDAO->crear($cuenta);
         return $cuenta->getId();
     }

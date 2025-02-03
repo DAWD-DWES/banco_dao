@@ -19,7 +19,6 @@ $clienteDAO = new ClienteDAO($pdo, $cuentaDAO);
 
 $banco = new Banco($clienteDAO, $cuentaDAO, $operacionDAO, "Midas", [3, 1000], [1.5, 0.5]);
 
-
 // Datos de clientes de ejemplo
 $datosClientes = [
     ['dni' => '12345678A', 'nombre' => 'Juan', 'apellido1' => 'Pérez', 'apellido2' => 'López', 'telefono' => '123456789', 'fechaNacimiento' => '1980-01-01'],
@@ -33,7 +32,8 @@ foreach ($datosClientes as $datosCliente) {
     // Crear tres cuentas bancarias para cada cliente
     for ($i = 0; $i < 3; $i++) {
         $tipoCuenta = rand(0, 1) ? TipoCuenta::CORRIENTE : TipoCuenta::AHORROS;
-        $idCuenta = $banco->altaCuentaCliente($datosCliente['dni'], $tipoCuenta);
+        $idCuenta = ($tipoCuenta === TipoCuenta::CORRIENTE) ? $banco->altaCuentaCorrienteCliente($datosCliente['dni'], rand(0, 500)) :
+                $banco->altaCuentaAhorrosCliente($datosCliente['dni'], rand(0, 500), rand(0, 1) ? true : false);
         // Realizar tres operaciones de ingreso en las cada cuenta
         for ($j = 0; $j < 3; $j++) {
             $tipoOperacion = rand(0, 1) ? TipoOperacion::INGRESO : TipoOperacion::DEBITO;

@@ -1,6 +1,8 @@
 <?php
 
 require_once "../src/modelo/Cuenta.php";
+require_once "../src/modelo/TipoCuenta.php";
+require_once "../src/dao/OperacionDAO.php";
 
 /**
  * Clase CuentaAhorros 
@@ -9,10 +11,10 @@ class CuentaAhorros extends Cuenta {
 
     private bool $libreta;
 
-    public function __construct(string $idCliente, float $saldo = 0, float $bonificacion = 0, bool $libreta = false) {
+    public function __construct(OperacionDAO $operacionDAO, string $idCliente, float $saldo = 0, float $bonificacion = 0, bool $libreta = false) {
         $this->libreta = $libreta;
         $saldoBonificado = $saldo * (1 + ($bonificacion / 100));
-        parent::__construct($idCliente, $saldoBonificado);
+        parent::__construct($operacionDAO, $idCliente, $saldoBonificado);
     }
 
     public function ingreso(float $cantidad, string $descripcion, float $bonificacion = 0): void {
