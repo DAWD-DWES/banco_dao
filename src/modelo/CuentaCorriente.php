@@ -10,8 +10,8 @@ require_once "../src/dao/OperacionDAO.php";
  */
 class CuentaCorriente extends Cuenta {
 
-    public function __construct(OperacionDAO $operacionDAO, int $idCliente, float $cantidad = 0) {
-        parent::__construct($operacionDAO, $idCliente, TipoCuenta::CORRIENTE, $cantidad);
+    public function __construct(OperacionDAO $operacionDAO, int $idCliente) {
+        parent::__construct($operacionDAO, $idCliente, TipoCuenta::CORRIENTE);
     }
     
     /**
@@ -21,6 +21,7 @@ class CuentaCorriente extends Cuenta {
      */
     public function debito(float $cantidad, string $descripcion): void {
             $operacion = new Operacion($this->getId(), TipoOperacion::DEBITO, $cantidad, $descripcion);
+            $this->operacionDAO->crear($operacion);
             $this->agregaOperacion($operacion);
             $this->setSaldo($this->getSaldo() - $cantidad);
     }

@@ -32,8 +32,8 @@ foreach ($datosClientes as $datosCliente) {
     // Crear tres cuentas bancarias para cada cliente
     for ($i = 0; $i < 3; $i++) {
         $tipoCuenta = rand(0, 1) ? TipoCuenta::CORRIENTE : TipoCuenta::AHORROS;
-        $idCuenta = ($tipoCuenta === TipoCuenta::CORRIENTE) ? $banco->altaCuentaCorrienteCliente($datosCliente['dni'], rand(0, 500)) :
-                $banco->altaCuentaAhorrosCliente($datosCliente['dni'], rand(0, 500), rand(0, 1) ? true : false);
+        $idCuenta = ($tipoCuenta === TipoCuenta::CORRIENTE) ? $banco->altaCuentaCorrienteCliente($datosCliente['dni']) :
+                $banco->altaCuentaAhorrosCliente($datosCliente['dni'], rand(0, 1) ? true : false);
         // Realizar tres operaciones de ingreso en las cada cuenta
         for ($j = 0; $j < 3; $j++) {
             $tipoOperacion = rand(0, 1) ? TipoOperacion::INGRESO : TipoOperacion::DEBITO;

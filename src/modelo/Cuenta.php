@@ -11,7 +11,7 @@ require_once "../src/excepciones/SaldoInsuficienteException.php";
  */
 abstract class Cuenta implements IProductoBancario {
 
-    private OperacionDAO $operacionDAO;
+    protected OperacionDAO $operacionDAO;
 
     /**
      * Id de la cuenta
@@ -49,11 +49,11 @@ abstract class Cuenta implements IProductoBancario {
      */
     private array $operaciones;
 
-    public function __construct(OperacionDAO $operacionDAO, int $idCliente, TipoCuenta $tipo, float $saldo) {
+    public function __construct(OperacionDAO $operacionDAO, int $idCliente, TipoCuenta $tipo) {
         if (func_num_args() > 0) {
             $this->operacionDAO = $operacionDAO;
             $this->setTipo($tipo);
-            $this->setSaldo($saldo);
+            $this->setSaldo(0);
             $this->setOperaciones([]);
             $this->setFechaCreacion(new DateTime('now'));
             $this->setIdCliente($idCliente);

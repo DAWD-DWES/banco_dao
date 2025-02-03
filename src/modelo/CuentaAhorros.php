@@ -11,17 +11,16 @@ class CuentaAhorros extends Cuenta {
 
     private int $libreta;
 
-    public function __construct(OperacionDAO $operacionDAO, int $idCliente, float $saldo = 0, float $bonificacion = 0, bool $libreta = false) {
-        $this->libreta = (int)$libreta;
-        $saldoBonificado = $saldo * (1 + ($bonificacion / 100));
-        parent::__construct($operacionDAO, $idCliente, TipoCuenta::AHORROS, $saldoBonificado);
+    public function __construct(OperacionDAO $operacionDAO, int $idCliente, bool $libreta = false) {
+        $this->libreta = (int) $libreta;
+        parent::__construct($operacionDAO, $idCliente, TipoCuenta::AHORROS);
     }
 
     public function ingreso(float $cantidad, string $descripcion, float $bonificacion = 0): void {
         $cantidadBonificada = $cantidad * (1 + ($bonificacion / 100));
         parent::ingreso($cantidadBonificada, $descripcion);
     }
-    
+
     /**
      * 
      * @param type $cantidad Cantidad de dinero a retirar
@@ -31,6 +30,7 @@ class CuentaAhorros extends Cuenta {
     public function debito(float $cantidad, string $descripcion): void {
         if ($cantidad <= $this->getSaldo()) {
             $operacion = new Operacion($this->getId(), TipoOperacion::DEBITO, $cantidad, $descripcion);
+            $this->operacionDAO->crear($operacion);
             $this->agregaOperacion($operacion);
             $this->setSaldo($this->getSaldo() - $cantidad);
         } else {
@@ -39,11 +39,11 @@ class CuentaAhorros extends Cuenta {
     }
 
     public function getLibreta(): bool {
-        return (bool)$this->libreta;
+        return (bool) $this->libreta;
     }
 
     public function setLibreta(bool $libreta): void {
-        $this->libreta = (int)$libreta;
+        $this->libreta = (int) $libreta;
     }
 
     public function aplicaInteres(float $interes): void {
