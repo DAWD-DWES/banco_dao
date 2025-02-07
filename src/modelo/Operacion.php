@@ -99,6 +99,6 @@ class Operacion {
     }
 
     public function __toString() {
-        return ("{$this->getTipo()->value} Cantidad: {$this->getCantidad()} Descripción: {$this->getDescripcion()}");
+        return ("{$this->getTipo()->name} Cantidad: {$this->getCantidad()} Descripción: {$this->getDescripcion()}");
     }
 }

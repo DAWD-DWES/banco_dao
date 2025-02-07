@@ -53,7 +53,6 @@ foreach ($datosClientes as $datosCliente) {
 
 try {
     $banco->aplicaComisionCC();
-
     $banco->aplicaInteresCA();
 } catch (SaldoInsuficienteException $ex) {
     echo $ex->getMessage() . "</br>";

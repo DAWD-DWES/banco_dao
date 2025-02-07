@@ -10,8 +10,8 @@ require_once "../src/dao/OperacionDAO.php";
  */
 class CuentaCorriente extends Cuenta {
 
-    public function __construct(OperacionDAO $operacionDAO, int $idCliente) {
-        parent::__construct($operacionDAO, $idCliente, TipoCuenta::CORRIENTE);
+    public function __construct(OperacionDAO $operacionDAO, int $idCliente, float $saldo = 0, string $fechaCreacion = "now") {
+        parent::__construct($operacionDAO, $idCliente, TipoCuenta::CORRIENTE, $saldo, $fechaCreacion);
     }
     
     /**

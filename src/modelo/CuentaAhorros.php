@@ -8,19 +8,37 @@ require_once "../src/dao/OperacionDAO.php";
  * Clase CuentaAhorros 
  */
 class CuentaAhorros extends Cuenta {
+    
+    private float $bonificacion;
+    private bool $libreta;
 
-    private int $libreta;
-
-    public function __construct(OperacionDAO $operacionDAO, int $idCliente, bool $libreta = false) {
-        $this->libreta = (int) $libreta;
-        parent::__construct($operacionDAO, $idCliente, TipoCuenta::AHORROS);
+    public function __construct(OperacionDao $operacionDAO, string $idCliente, bool $libreta = false, float $bonificacion = 0, float $saldo = 0, string $fechaCreacion = "now") {
+        $this->libreta = $libreta;
+        $this->bonificacion = $bonificacion;
+        parent::__construct($operacionDAO, $idCliente, TipoCuenta::AHORROS, $saldo, $fechaCreacion);
     }
 
-    public function ingreso(float $cantidad, string $descripcion, float $bonificacion = 0): void {
-        $cantidadBonificada = $cantidad * (1 + ($bonificacion / 100));
+    public function getLibreta(): bool {
+        return $this->libreta;
+    }
+
+    public function setLibreta(bool $libreta): void {
+        $this->libreta = $libreta;
+    }
+    
+    function getBonificacion(): float {
+        return $this->bonificacion;
+    }
+
+    function setBonificacion(float $bonificacion): void {
+        $this->bonificacion = $bonificacion;
+    }
+    
+    public function ingreso(float $cantidad, string $descripcion): void {
+          $cantidadBonificada = $cantidad * (1 + ($this->getBonificacion() / 100));
         parent::ingreso($cantidadBonificada, $descripcion);
     }
-
+    
     /**
      * 
      * @param type $cantidad Cantidad de dinero a retirar
@@ -30,20 +48,11 @@ class CuentaAhorros extends Cuenta {
     public function debito(float $cantidad, string $descripcion): void {
         if ($cantidad <= $this->getSaldo()) {
             $operacion = new Operacion($this->getId(), TipoOperacion::DEBITO, $cantidad, $descripcion);
-            $this->operacionDAO->crear($operacion);
             $this->agregaOperacion($operacion);
             $this->setSaldo($this->getSaldo() - $cantidad);
         } else {
             throw new SaldoInsuficienteException($this->getId(), $cantidad);
         }
-    }
-
-    public function getLibreta(): bool {
-        return (bool) $this->libreta;
-    }
-
-    public function setLibreta(bool $libreta): void {
-        $this->libreta = (int) $libreta;
     }
 
     public function aplicaInteres(float $interes): void {
@@ -55,3 +64,4 @@ class CuentaAhorros extends Cuenta {
         return (parent::__toString() . "<br> Libreta: " . ($this->getLibreta() ? "Si" : "No") . "</br>");
     }
 }
+

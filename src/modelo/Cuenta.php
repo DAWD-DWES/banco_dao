@@ -49,13 +49,13 @@ abstract class Cuenta implements IProductoBancario {
      */
     private array $operaciones;
 
-    public function __construct(OperacionDAO $operacionDAO, int $idCliente, TipoCuenta $tipo) {
+    public function __construct(OperacionDAO $operacionDAO, int $idCliente, TipoCuenta $tipo, float $saldo = 0, string $fechaCreacion = 'now') {
         if (func_num_args() > 0) {
             $this->operacionDAO = $operacionDAO;
             $this->setTipo($tipo);
-            $this->setSaldo(0);
+            $this->setSaldo($saldo);
             $this->setOperaciones([]);
-            $this->setFechaCreacion(new DateTime('now'));
+            $this->setFechaCreacion(new DateTime($fechaCreacion));
             $this->setIdCliente($idCliente);
         }
     }
@@ -136,7 +136,7 @@ abstract class Cuenta implements IProductoBancario {
         $operacionesStr = implode("</br>", array_map(fn($operacion) => "{$operacion->__toString()}", $this->getOperaciones())); // Convertir las operaciones en una cadena separada por saltos de línea
 
         return "Cuenta ID: {$this->getId()}</br>" .
-                "Tipo Cuenta: " . get_class($this) . "</br>" .
+                "Tipo Cuenta: " . ($this->getTipo())->value . "</br>" .
                 "Cliente ID: {$this->getIdCliente()}</br>" .
                 "Saldo: $saldoFormatted</br>" .
                 "Fecha Creación: {$this->getFechaCreacion()->format('Y-m-d')}</br>" .

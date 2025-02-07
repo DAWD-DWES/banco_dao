@@ -34,7 +34,7 @@ class CuentaDAO {
      * @return CuentaCorriente|CuentaAhorros|null
      */
     public function recuperaPorId(int $id): CuentaCorriente|CuentaAhorros|null {
-        $sql = "SELECT id, cliente_id as idCliente, tipo, saldo, UNIX_TIMESTAMP(fecha_creacion) as fechaCreacion, libreta FROM cuentas WHERE id = :id;";
+        $sql = "SELECT id, cliente_id as idCliente, tipo, saldo, UNIX_TIMESTAMP(fecha_creacion) as fechaCreacion, libreta, bonificacion FROM cuentas WHERE id = :id;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id' => $id]);
         $stmt->setFetchMode(PDO::FETCH_OBJ);
@@ -62,7 +62,7 @@ class CuentaDAO {
      * @return array
      */
     public function recuperaTodos(): array {
-        $sql = "SELECT id as id, cliente_id as idCliente, tipo, saldo, UNIX_TIMESTAMP(fecha_creacion) as fechaCreacion, libreta FROM cuentas;";
+        $sql = "SELECT id as id, cliente_id as idCliente, tipo, saldo, UNIX_TIMESTAMP(fecha_creacion) as fechaCreacion, libreta, bonificacion FROM cuentas;";
         $stmt = $this->pdo->query($sql);
         $cuentasDatos = $stmt->fetchAll(PDO::FETCH_OBJ);
         return array_map(fn($datos) => $this->crearCuenta($datos), $cuentasDatos);
@@ -75,9 +75,9 @@ class CuentaDAO {
      * @return CuentaCorriente|CuentaAhorros
      */
     private function crearCuenta(object $datosCuenta): CuentaCorriente|CuentaAhorros {
-        $cuenta = match ($datosCuenta?->tipo) {
-            TipoCuenta::AHORROS->value => (new CuentaAhorros($this->operacionDAO, $datosCuenta->idCliente, $datosCuenta->saldo, $datosCuenta->libreta)),
-            TipoCuenta::CORRIENTE->value => (new CuentaCorriente($this->operacionDAO, $datosCuenta->idCliente, $datosCuenta->saldo)),
+        $cuenta = match ($datosCuenta->tipo) {
+            TipoCuenta::AHORROS->value => (new CuentaAhorros($this->operacionDAO, $datosCuenta->idCliente, $datosCuenta->libreta, $datosCuenta->bonificacion, (float) $datosCuenta->saldo, $datosCuenta->fechaCreacion)),
+            TipoCuenta::CORRIENTE->value => (new CuentaCorriente($this->operacionDAO, $datosCuenta->idCliente, (float) $datosCuenta->saldo, $datosCuenta->fechaCreacion)),
             default => null
         };
         $cuenta->setId($datosCuenta->id);
@@ -90,28 +90,19 @@ class CuentaDAO {
      * Crea un registro de una instancia de cuenta
      * @param Cuenta $cuenta
      */
-    public function crear(Cuenta $cuenta): bool {
-        $sqlCuentaAhorros = "INSERT INTO cuentas (cliente_id, tipo, saldo, fecha_creacion, libreta) VALUES (:cliente_id, :tipo, :saldo, FROM_UNIXTIME(:fechaCreacion), :libreta);";
-        $sqlCuentaCorriente = "INSERT INTO cuentas (cliente_id, tipo, saldo, fecha_creacion) VALUES (:cliente_id, :tipo, :saldo, FROM_UNIXTIME(:fechaCreacion));";
+    public function crear(Cuenta $cuenta): int|bool {
+        $sql = "INSERT INTO cuentas (cliente_id, tipo, saldo, fecha_creacion, libreta, bonificacion) VALUES (:cliente_id, :tipo, :saldo, FROM_UNIXTIME(:fechaCreacion), :libreta, :bonificacion);";
         $params = [
             'cliente_id' => $cuenta->getIdCliente(),
             'tipo' => $cuenta->getTipo()->value,
             'saldo' => $cuenta->getSaldo(),
-            'fechaCreacion' => ($cuenta->getFechaCreacion())->format('Y-m-d')
+            'fechaCreacion' => ($cuenta->getFechaCreacion())->format('Y-m-d'),
+            'libreta' => ($cuenta instanceof CuentaAhorros) ? $cuenta->getLibreta() : null,
+            'bonificacion' => ($cuenta instanceof CuentaAhorros) ? $cuenta->getbonificacion() : null
         ];
-        if ($cuenta instanceof CuentaAhorros) {
-            $sql = $sqlCuentaAhorros;
-            $params['libreta'] = (int) $cuenta->getLibreta();
-        }
-        else {
-            $sql = $sqlCuentaCorriente;
-        }
         $stmt = $this->pdo->prepare($sql);
         $result = $stmt->execute($params);
-        if ($result) {
-            $cuenta->setId($this->pdo->lastInsertId());
-        }
-        return $result;
+        return ($result ? $this->pdo->lastInsertId() : false);
     }
 
     /**
@@ -119,14 +110,16 @@ class CuentaDAO {
      * @param Cuenta $cuenta
      */
     public function modificar(Cuenta $cuenta): bool {
-        $sql = "UPDATE cuentas SET cliente_id = :cliente_id, tipo = :tipo, saldo = :saldo, fecha_creacion = FROM_UNIXTIME (:fecha_creacion) WHERE id = :id;";
+        $sql = "UPDATE cuentas SET cliente_id = :cliente_id, tipo = :tipo, saldo = :saldo, fecha_creacion = FROM_UNIXTIME (:fecha_creacion), libreta = :libreta, bonificacion = :bonificacion WHERE id = :id;";
         $stmt = $this->pdo->prepare($sql);
         $result = $stmt->execute([
             'id' => $cuenta->getId(),
             'cliente_id' => $cuenta->getIdCliente(),
             'tipo' => ($cuenta->getTipo())->value,
             'saldo' => $cuenta->getSaldo(),
-            'fecha_creacion' => ($cuenta->getFechaCreacion())->format('Y-m-d')
+            'fecha_creacion' => ($cuenta->getFechaCreacion())->format('Y-m-d'),
+            'libreta' => ($cuenta instanceof CuentaAhorros) ? $cuenta->getLibreta() : null,
+            'bonificacion' => ($cuenta instanceof CuentaAhorros) ? $cuenta->getbonificacion() : null
         ]);
         return $result;
     }

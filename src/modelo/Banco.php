@@ -80,8 +80,6 @@ class Banco {
         $this->setMinSaldoComisionCC($args[1][1] ?? 0);
         $this->setInteresCA($args[2][0] ?? 0);
         $this->setBonificacionCA($args[2][1] ?? 0);
-        $this->setClientes();
-        $this->setCuentas();
     }
 
     /**
@@ -159,30 +157,6 @@ class Banco {
     }
 
     /**
-     * Establece la colección de clientes del banco
-     *  
-     * @param array $clientes Colección de clientes del banco
-     * @return $this
-     */
-    public function setClientes(array $clientes = []) {
-        foreach ($clientes as $cliente) {
-            $this->clienteDAO->crear($cliente);
-        }
-    }
-
-    /**
-     * Establece la colección de cuentas del banco
-     *  
-     * @param array $cuentas Colección de cuentas del banco
-     * @return $this
-     */
-    public function setCuentas(array $cuentas = []) {
-        foreach ($cuentas as $cuenta) {
-            $this->cuentaDAO->crear($cuenta);
-        }
-    }
-
-    /**
      * Establece la comision de cuenta corriente del banco
      * 
      * @param float $comisionCC Comisión del banco
@@ -243,7 +217,7 @@ class Banco {
      * @param string $dni
      */
     public function bajaCliente(string $dni) {
-        $cliente = $this->clienteDAO->recuperaPorDni($dni);
+        $cliente = $this->obtenerCliente($dni);
         $cuentas = $cliente->getIdCuentas();
         foreach ($cuentas as $idCuenta) {
             $this->cuentaDAO->eliminar($idCuenta);
@@ -268,27 +242,15 @@ class Banco {
     }
 
     /**
-     * Predicado para saber si un cliente existe o no
-     * 
-     * @param string $dni
-     * @return bool
-     */
-    public function existeCliente(string $dni): bool {
-        $clienteDAO = new ClienteDAO($this->pdo);
-        $cliente = $clienteDAO->recuperaPorDNI($dni);
-        return $cliente;
-    }
-
-    /**
      * Crea una cuenta corriente de un cliente del banco
      * 
      * @param string $dni
-     * @param float $saldo
      */
-    public function altaCuentaCorrienteCliente(string $dni, float $saldo = 0): string {
+    public function altaCuentaCorrienteCliente(string $dni): int {
         $cliente = $this->obtenerCliente($dni);
-        $cuenta = new CuentaCorriente($this->operacionDAO, $cliente->getId(), $saldo);
-        $this->cuentaDAO->crear($cuenta);
+        $cuenta = new CuentaCorriente($this->operacionDAO, $cliente->getId());
+        $idCuenta = $this->cuentaDAO->crear($cuenta);
+        $cuenta->setId($idCuenta);
         return $cuenta->getId();
     }
 
@@ -296,12 +258,13 @@ class Banco {
      * Crea una cuenta de ahorros de un cliente del banco
      * 
      * @param string $dni
-     * @param float $saldo
+     * @param bool libreta
      */
-    public function altaCuentaAhorrosCliente(string $dni, float $saldo = 0, bool $libreta = false): string {
+    public function altaCuentaAhorrosCliente(string $dni, bool $libreta = false): int {
         $cliente = $this->obtenerCliente($dni);
-        $cuenta = new CuentaAhorros($this->operacionDAO, $cliente->getId(), $saldo, $this->getBonificacionCA(), $libreta);
-        $this->cuentaDAO->crear($cuenta);
+        $cuenta = new CuentaAhorros($this->operacionDAO, $cliente->getId(), $libreta, $this->getBonificacionCA());
+        $idCuenta = $this->cuentaDAO->crear($cuenta);
+        $cuenta->setId($idCuenta);
         return $cuenta->getId();
     }
 
@@ -325,7 +288,6 @@ class Banco {
      * Crea una tarjeta de un cliente del banco
      * 
      * @param string $dni
-     * @param float $saldo
      */
     public function altaTarjetaCreditoCliente(string $dni): TarjetaCredito {
         $cliente = $this->obtenerCliente($dni);
@@ -360,11 +322,7 @@ class Banco {
         $cliente = $this->obtenerCliente($dni);
         $cuenta = $this->obtenerCuenta($idCuenta);
         if ($cliente->getId() === $cuenta->getIdCliente()) {
-            if ($cuenta instanceof CuentaAhorros) {
-                $cuenta->ingreso($cantidad, $descripcion, $this->getBonificacionCA());
-            } else {
-                $cuenta->ingreso($cantidad, $descripcion);
-            }
+            $cuenta->ingreso($cantidad, $descripcion);
             $this->cuentaDAO->modificar($cuenta);
         } else {
             throw new CuentaNoPerteneceClienteException($dni, $idCuenta);
@@ -429,7 +387,6 @@ class Banco {
 // Captura las propiedades necesarias con 'use'
         $comisionCC = $this->getComisionCC();
         $minSaldoComisionCC = $this->getMinSaldoComisionCC();
-
         array_walk($cuentasCorrientes, function ($cuentaCC) use ($comisionCC, $minSaldoComisionCC) {
             $cuentaCC->aplicaComision($comisionCC, $minSaldoComisionCC);
             $this->cuentaDAO->modificar($cuentaCC);
