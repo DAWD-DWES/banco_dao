@@ -80,19 +80,16 @@ class OperacionDAO {
      */
     public function modificar(Operacion $operacion): bool {
         $sql = "UPDATE operaciones SET cuenta_id = :cuenta_id, tipo = :tipo, cantidad = :cantidad, fecha = :fecha, descripcion = :descripcion WHERE id = :id;";
-        if ($object instanceof Operacion) {
-            $operacion = $object;
-            $stmt = $this->pdo->prepare($sql);
-            $result = $stmt->execute([
-                'id' => $operacion->getId(),
-                'cuenta_id' => $operacion->getIdCuenta(),
-                'tipo' => ($operacion->getTipo())->value,
-                'cantidad' => $operacion->getCantidad(),
-                'fecha' => $operacion->getFecha()->getTimestamp(),
-                'descripcion' => $operacion->getDescripcion()
-            ]);
-            return $result;
-        }
+        $stmt = $this->pdo->prepare($sql);
+        $result = $stmt->execute([
+            'id' => $operacion->getId(),
+            'cuenta_id' => $operacion->getIdCuenta(),
+            'tipo' => ($operacion->getTipo())->value,
+            'cantidad' => $operacion->getCantidad(),
+            'fecha' => $operacion->getFecha()->getTimestamp(),
+            'descripcion' => $operacion->getDescripcion()
+        ]);
+        return $result;
     }
 
     /**
