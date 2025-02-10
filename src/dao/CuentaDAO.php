@@ -143,9 +143,6 @@ class CuentaDAO {
         $this->pdo->beginTransaction();
     }
 
-    public function endTransaction() {
-        $this->pdo->setAttribute(PDO::ATTR_AUTOCOMMIT, true);
-    }
 
     public function commit() {
         $this->pdo->commit();

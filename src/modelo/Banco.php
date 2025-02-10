@@ -353,26 +353,17 @@ class Banco {
      * @param string $dniClienteDestino
      * @param string $idCuentaOrigen
      * @param string $idCuentaDestino
-     * @param float $saldo
+     * @param float $cantidad
      * @return bool
      */
     public function realizaTransferencia(string $dniClienteOrigen, string $dniClienteDestino, int $idCuentaOrigen, int $idCuentaDestino, float $cantidad): void {
-        $clienteOrigen = $this->obtenerCliente($dniClienteOrigen);
-        $clienteDestino = $this->obtenerCliente($dniClienteDestino);
-        $cuentaOrigen = $this->obtenerCuenta($idCuentaOrigen);
-        $cuentaDestino = $this->obtenerCuenta($idCuentaDestino);
-
         try {
             $this->cuentaDAO->beginTransaction();
-            $cuentaOrigen->debito($cantidad, "Transferencia de $cantidad € desde su cuenta $idCuentaOrigen a la cuenta $idCuentaDestino");
-            $this->cuentaDAO->modificar($cuentaOrigen);
-            $cuentaDestino->ingreso($cantidad, "Transferencia de $cantidad € desde la cuenta $idCuentaOrigen a su cuenta $idCuentaDestino");
-            $this->cuentaDAO->modificar($cuentaDestino);
+            $this->debitoCuentaCliente($dniClienteOrigen, $idCuentaOrigen, $cantidad, "Transferencia de $cantidad € desde su cuenta $idCuentaOrigen a la cuenta $idCuentaDestino");
+            $this->ingresoCuentaCliente($dniClienteDestino, $idCuentaDestino, $cantidad, "Transferencia de $cantidad € desde la cuenta $idCuentaOrigen a su cuenta $idCuentaDestino");
             $this->cuentaDAO->commit();
-            $this->cuentaDAO->endTransaction();
         } catch (Exception $ex) {
             $this->cuentaDAO->rollback();
-            $this->cuentaDAO->endTransaction();
             throw $ex;
         }
     }
