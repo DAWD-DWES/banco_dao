@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Clase Cuenta 
+ * Clase TarjetaCredito
  */
 class TarjetaCredito implements IProductoBancario {
 

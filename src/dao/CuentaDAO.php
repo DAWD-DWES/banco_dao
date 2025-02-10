@@ -1,8 +1,6 @@
 <?php
 
 require_once '../src/modelo/Cuenta.php';
-require_once '../src/modelo/CuentaAhorros.php';
-require_once '../src/modelo/CuentaCorriente.php';
 require_once '../src/modelo/TipoCuenta.php';
 require_once '../src/dao/OperacionDAO.php';
 
@@ -33,7 +31,7 @@ class CuentaDAO {
      * @param int $id
      * @return CuentaCorriente|CuentaAhorros|null
      */
-    public function recuperaPorId(int $id): CuentaCorriente|CuentaAhorros|null {
+    public function recuperaPorId(int $id): ?Cuenta {
         $sql = "SELECT id, cliente_id as idCliente, tipo, saldo, UNIX_TIMESTAMP(fecha_creacion) as fechaCreacion, libreta, bonificacion FROM cuentas WHERE id = :id;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id' => $id]);
@@ -74,7 +72,7 @@ class CuentaDAO {
      * @param object $datosCuenta
      * @return CuentaCorriente|CuentaAhorros
      */
-    private function crearCuenta(object $datosCuenta): CuentaCorriente|CuentaAhorros {
+    private function crearCuenta(object $datosCuenta): Cuenta {
         $cuenta = match ($datosCuenta->tipo) {
             TipoCuenta::AHORROS->value => (new CuentaAhorros($this->operacionDAO, $datosCuenta->idCliente, $datosCuenta->libreta, $datosCuenta->bonificacion, (float) $datosCuenta->saldo, $datosCuenta->fechaCreacion)),
             TipoCuenta::CORRIENTE->value => (new CuentaCorriente($this->operacionDAO, $datosCuenta->idCliente, (float) $datosCuenta->saldo, $datosCuenta->fechaCreacion)),

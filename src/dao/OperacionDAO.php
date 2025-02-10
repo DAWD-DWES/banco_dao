@@ -26,7 +26,7 @@ class OperacionDAO {
         $sql = "SELECT id as id, cuenta_id as idCuenta, tipo, cantidad, UNIX_TIMESTAMP(fecha) as fecha, descripcion FROM operaciones WHERE id = :id;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id' => $id]);
-        $stmt->setFetchMode(PDO::FETCH_CLASS, 'Operacion');
+        $stmt->setFetchMode(PDO::FETCH_CLASS, Operacion::class);
         $operacion = $stmt->fetch();
         return $operacion;
     }
@@ -40,7 +40,7 @@ class OperacionDAO {
         $sql = "SELECT id as id, cuenta_id as idCuenta, tipo, cantidad, UNIX_TIMESTAMP(fecha) as fecha, descripcion FROM operaciones WHERE cuenta_id = :idCuenta;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['idCuenta' => $idCuenta]);
-        $stmt->setFetchMode(PDO::FETCH_CLASS, 'Operacion');
+        $stmt->setFetchMode(PDO::FETCH_CLASS, Operacion::class);
         $operaciones = $stmt->fetchAll() ?? [];
         return $operaciones;
     }
@@ -52,7 +52,7 @@ class OperacionDAO {
     public function recuperaTodos(): array {
         $sql = "SELECT id as id, cuenta_id as idCuenta, tipo, cantidad, UNIX_TIMESTAMP(fecha) as fecha, descripcion FROM operaciones;";
         $stmt = $this->pdo->query($sql);
-        $operaciones = $stmt->fetchAll(PDO::FETCH_CLASS, 'Operacion');
+        $operaciones = $stmt->fetchAll(PDO::FETCH_CLASS, Operacion::class);
         return $operaciones;
     }
 

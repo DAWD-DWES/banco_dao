@@ -35,7 +35,7 @@ class ClienteDAO {
         $sql = "SELECT id, dni, nombre, apellido1, apellido2, fecha_nacimiento as fechaNacimiento, telefono FROM clientes WHERE id = :id;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id' => $id]);
-        $stmt->setFetchMode(PDO::FETCH_CLASS, 'Cliente');
+        $stmt->setFetchMode(PDO::FETCH_CLASS, Cliente::class);
         $cliente = $stmt->fetch();
         if ($cliente) {
             $cliente->setIdCuentas($this->cuentaDAO->recuperaIdCuentasPorClienteId($this->getId()));
@@ -53,7 +53,7 @@ class ClienteDAO {
         $sql = "SELECT id, dni, nombre, apellido1, apellido2, fecha_nacimiento as fechaNacimiento, telefono FROM clientes WHERE dni = :dni;";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['dni' => $dni]);
-        $stmt->setFetchMode(PDO::FETCH_CLASS, 'Cliente');
+        $stmt->setFetchMode(PDO::FETCH_CLASS, Cliente::class);
         $cliente = $stmt->fetch();
         if ($cliente) {
             $cliente->setIdCuentas($this->cuentaDAO->recuperaIdCuentasPorClienteId($cliente->getId()));
@@ -68,7 +68,7 @@ class ClienteDAO {
     public function recuperaTodos(): array {
         $sql = "SELECT id, dni, nombre, apellido1, apellido2, fecha_nacimiento as fechaNacimiento, telefono FROM clientes;";
         $stmt = $this->pdo->query($sql);
-        $clientes = $stmt->fetchAll(PDO::FETCH_CLASS, 'Cliente');
+        $clientes = $stmt->fetchAll(PDO::FETCH_CLASS, Cliente::class);
         array_walk($clientes, function ($cliente) {
             $cliente->setIdCuentas($this->cuentaDAO->recuperaIdCuentasPorClienteId($cliente->getId()));
         });
@@ -101,7 +101,7 @@ class ClienteDAO {
      * 
      * @param Cliente $cliente Cliente para modificar un registro en el BD
      */
-    public function modificar(object $object): bool {
+    public function modificar(Cliente $cliente): bool {
         $sql = "UPDATE clientes SET dni = :dni, nombre = :nombre, apellido1 = :apellido1, apellido2 = :apellido2, fecha_nacimiento = :fecha_nacimiento, telefono = :telefono WHERE id = :id;";
         $stmt = $this->pdo->prepare($sql);
         $result = $stmt->execute([
