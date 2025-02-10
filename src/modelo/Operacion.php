@@ -74,31 +74,31 @@ class Operacion {
         return $this->idCuenta;
     }
 
-    public function setId(int $id) {
+    public function setId(int $id): void {
         $this->id = $id;
     }
 
-    public function setTipo(TipoOperacion $tipo) {
+    public function setTipo(TipoOperacion $tipo): void {
         $this->tipo = $tipo->value;
     }
 
-    public function setCantidad(float $cantidad) {
+    public function setCantidad(float $cantidad): void {
         $this->cantidad = $cantidad;
     }
 
-    public function setFecha(DateTime $fecha) {
+    public function setFecha(DateTime $fecha): void {
         $this->fecha = $fecha->getTimestamp();
     }
 
-    public function setDescripcion(string $descripcion) {
+    public function setDescripcion(string $descripcion): void {
         $this->descripcion = $descripcion;
     }
 
-    public function setIdCuenta(int $idCuenta) {
+    public function setIdCuenta(int $idCuenta): void {
         $this->idCuenta = $idCuenta;
     }
 
-    public function __toString() {
+    public function __toString(): string {
         return ("{$this->getTipo()->name} Cantidad: {$this->getCantidad()} Descripción: {$this->getDescripcion()}");
     }
 }

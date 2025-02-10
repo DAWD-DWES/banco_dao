@@ -151,9 +151,8 @@ class Banco {
      * @param string $nombre Nombre del banco
      * @return $this
      */
-    public function setNombre(string $nombre) {
+    public function setNombre(string $nombre): void {
         $this->nombre = $nombre;
-        return $this;
     }
 
     /**
@@ -162,7 +161,7 @@ class Banco {
      * @param float $comisionCC Comisión del banco
      * @return $this
      */
-    public function setComisionCC(float $comisionCC) {
+    public function setComisionCC(float $comisionCC): void {
         $this->comisionCC = $comisionCC;
     }
 
@@ -172,7 +171,7 @@ class Banco {
      * @param float $minSaldoComisionCC mínimo saldo sin comisión
      * @return $this
      */
-    public function setMinSaldoComisionCC(float $minSaldoComisionCC) {
+    public function setMinSaldoComisionCC(float $minSaldoComisionCC): void {
         $this->minSaldoComisionCC = $minSaldoComisionCC;
     }
 
@@ -182,7 +181,7 @@ class Banco {
      * @param float $interesCA Interés del banco
      * @return $this
      */
-    public function setInteresCA(float $interesCA) {
+    public function setInteresCA(float $interesCA): void {
         $this->interesCA = $interesCA;
     }
 
@@ -216,7 +215,7 @@ class Banco {
      * 
      * @param string $dni
      */
-    public function bajaCliente(string $dni) {
+    public function bajaCliente(string $dni): void {
         $cliente = $this->obtenerCliente($dni);
         $cuentas = $cliente->getIdCuentas();
         foreach ($cuentas as $idCuenta) {
@@ -274,7 +273,7 @@ class Banco {
      * @param string $dni
      * @param string $idCuenta
      */
-    public function bajaCuentaCliente(string $dni, int $idCuenta) {
+    public function bajaCuentaCliente(string $dni, int $idCuenta): void {
         $cliente = $this->obtenerCliente($dni);
         $cuenta = $this->obtenerCuenta($idCuenta);
         if ($cliente->getId() === $cuenta->getIdCliente()) {
@@ -318,7 +317,7 @@ class Banco {
      * @param float $cantidad
      * @param string $descripcion
      */
-    public function ingresoCuentaCliente(string $dni, string $idCuenta, float $cantidad, string $descripcion) {
+    public function ingresoCuentaCliente(string $dni, string $idCuenta, float $cantidad, string $descripcion): void {
         $cliente = $this->obtenerCliente($dni);
         $cuenta = $this->obtenerCuenta($idCuenta);
         if ($cliente->getId() === $cuenta->getIdCliente()) {
@@ -336,7 +335,7 @@ class Banco {
      * @param string $idCuenta
      * @param float $saldo
      */
-    public function debitoCuentaCliente(string $dni, int $idCuenta, float $cantidad, string $descripcion) {
+    public function debitoCuentaCliente(string $dni, int $idCuenta, float $cantidad, string $descripcion): void {
         $cliente = $this->obtenerCliente($dni);
         $cuenta = $this->obtenerCuenta($idCuenta);
         if ($cliente->getId() === $cuenta->getIdCliente()) {
@@ -357,7 +356,7 @@ class Banco {
      * @param float $saldo
      * @return bool
      */
-    public function realizaTransferencia(string $dniClienteOrigen, string $dniClienteDestino, int $idCuentaOrigen, int $idCuentaDestino, float $cantidad) {
+    public function realizaTransferencia(string $dniClienteOrigen, string $dniClienteDestino, int $idCuentaOrigen, int $idCuentaDestino, float $cantidad): void {
         $clienteOrigen = $this->obtenerCliente($dniClienteOrigen);
         $clienteDestino = $this->obtenerCliente($dniClienteDestino);
         $cuentaOrigen = $this->obtenerCuenta($idCuentaOrigen);
@@ -381,7 +380,7 @@ class Banco {
     /**
      * Aplica cargos de comisión a la cuenta corriente
      */
-    public function aplicaComisionCC() {
+    public function aplicaComisionCC(): void {
         $cuentasCorrientes = array_filter($this->obtenerCuentas(), fn($cuenta) => $cuenta instanceof CuentaCorriente);
 
 // Captura las propiedades necesarias con 'use'
@@ -393,7 +392,7 @@ class Banco {
         });
     }
 
-    public function aplicaInteresCA() {
+    public function aplicaInteresCA(): void {
         $cuentasAhorros = array_filter($this->obtenerCuentas(), fn($cuenta) => $cuenta instanceof CuentaAhorros);
 
 // Captura las propiedades necesarias con 'use'

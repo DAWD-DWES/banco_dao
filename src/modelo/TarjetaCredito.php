@@ -91,7 +91,7 @@ class TarjetaCredito implements IProductoBancario {
         }
     }
 
-    public function __toString() {
+    public function __toString(): string {
         return "Num Tarjeta: {$this->getNumero()}</br>" .
                 "Limite: {$this->getLimite()}</br>";
     }

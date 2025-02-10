@@ -12,10 +12,10 @@ class SaldoInsuficienteException extends Exception {
         parent::__construct($message);
     }
     
-    public function getIdCuenta() {
+    public function getIdCuenta(): int {
         return $this->idCuenta;
     }
-    public function getCantidad() {
+    public function getCantidad(): float {
         return $this->cantidad;
     }
 }

@@ -85,27 +85,27 @@ abstract class Cuenta implements IProductoBancario {
         return $this->operaciones;
     }
 
-    public function setId(int $id) {
+    public function setId(int $id): void {
         $this->id = $id;
     }
 
-    public function setSaldo(float $saldo) {
+    public function setSaldo(float $saldo): void {
         $this->saldo = $saldo;
     }
 
-    public function setFechaCreacion(DateTime $fechaCreacion) {
+    public function setFechaCreacion(DateTime $fechaCreacion): void {
         $this->fechaCreacion = $fechaCreacion->getTimestamp();
     }
 
-    public function setIdCliente(int $idCliente) {
+    public function setIdCliente(int $idCliente): void {
         $this->idCliente = $idCliente;
     }
 
-    public function setTipo(TipoCuenta $tipo) {
+    public function setTipo(TipoCuenta $tipo): void {
         $this->tipo = $tipo->value;
     }
 
-    public function setOperaciones(array $operaciones) {
+    public function setOperaciones(array $operaciones): void {
         $this->operaciones = $operaciones;
     }
 
@@ -131,7 +131,7 @@ abstract class Cuenta implements IProductoBancario {
      */
     abstract public function debito(float $cantidad, string $descripcion): void;
 
-    public function __toString() {
+    public function __toString(): string {
         $saldoFormatted = number_format($this->getSaldo(), 2); // Formatear el saldo con dos decimales
         $operacionesStr = implode("</br>", array_map(fn($operacion) => "{$operacion->__toString()}", $this->getOperaciones())); // Convertir las operaciones en una cadena separada por saltos de línea
 
@@ -147,7 +147,7 @@ abstract class Cuenta implements IProductoBancario {
      * Agrega operación a la lista de operaciones de la cuenta
      * @param type $operacion Operación a añadir
      */
-    protected function agregaOperacion(Operacion $operacion) {
+    protected function agregaOperacion(Operacion $operacion): void {
         $this->operaciones[] = $operacion;
     }
 }

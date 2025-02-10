@@ -100,49 +100,49 @@ class Cliente {
         return $this->idCuentas;
     }
 
-    public function setId(int $id) {
+    public function setId(int $id): void {
         $this->id = $id;
     }
 
-    public function setDni(string $dni) {
+    public function setDni(string $dni): void {
         $this->dni = $dni;
     }
 
-    public function setNombre(string $nombre) {
+    public function setNombre(string $nombre): void {
         $this->nombre = $nombre;
     }
 
-    public function setApellido1(string $apellido1) {
+    public function setApellido1(string $apellido1): void {
         $this->apellido1 = $apellido1;
     }
 
-    public function setApellido2(string $apellido2) {
+    public function setApellido2(string $apellido2): void {
         $this->apellido2 = $apellido2;
     }
 
-    public function setTelefono(string $telefono) {
+    public function setTelefono(string $telefono): void {
         $this->telefono = $telefono;
     }
 
-    public function setFechaNacimiento(DateTime $fechaNacimiento) {
+    public function setFechaNacimiento(DateTime $fechaNacimiento): void {
         $this->fechaNacimiento = $fechaNacimiento->format('Y-m-d');
     }
 
-    public function setIdCuentas(array $idCuentas) {
+    public function setIdCuentas(array $idCuentas): void {
         $this->idCuentas = $idCuentas;
     }
 
-    public function altaCuenta(string $idCuenta) {
+    public function altaCuenta(string $idCuenta): void {
         $this->idCuentas[] = $idCuenta;
     }
 
-    public function existeIdCuenta(string $idCuenta) {
+    public function existeIdCuenta(string $idCuenta): bool {
         $clave = array_search($idCuenta, $this->getIdCuentas());
         // Si la clave existe en el array, elimina el elemento
         return ($clave !== false);
     }
 
-    public function bajaCuenta(string $idCuenta) {
+    public function bajaCuenta(string $idCuenta): void {
         $clave = array_search($idCuenta, $this->getIdCuentas());
 // Si la clave existe en el array, elimina el elemento
         if ($clave !== false) {

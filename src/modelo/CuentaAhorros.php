@@ -26,11 +26,11 @@ class CuentaAhorros extends Cuenta {
         $this->libreta = $libreta;
     }
     
-    function getBonificacion(): float {
+    public function getBonificacion(): float {
         return $this->bonificacion;
     }
 
-    function setBonificacion(float $bonificacion): void {
+    public function setBonificacion(float $bonificacion): void {
         $this->bonificacion = $bonificacion;
     }
     
@@ -60,7 +60,7 @@ class CuentaAhorros extends Cuenta {
         $this->ingreso($intereses, "Intereses a tu favor.");
     }
 
-    public function __toString() {
+    public function __toString(): string {
         return (parent::__toString() . "<br> Libreta: " . ($this->getLibreta() ? "Si" : "No") . "</br>");
     }
 }
