@@ -29,7 +29,7 @@ class CuentaDAO {
     /**
      * Obtener una cuenta dado su identificador
      * @param int $id
-     * @return CuentaCorriente|CuentaAhorros|null
+     * @return Cuenta|null
      */
     public function recuperaPorId(int $id): ?Cuenta {
         $sql = "SELECT id, cliente_id as idCliente, tipo, saldo, UNIX_TIMESTAMP(fecha_creacion) as fechaCreacion, libreta, bonificacion FROM cuentas WHERE id = :id;";
@@ -70,7 +70,7 @@ class CuentaDAO {
      * Crea una cuenta a partir de los datos obtenidos del registro
      * 
      * @param object $datosCuenta
-     * @return CuentaCorriente|CuentaAhorros
+     * @return Cuenta
      */
     private function crearCuenta(object $datosCuenta): Cuenta {
         $cuenta = match ($datosCuenta->tipo) {
@@ -137,18 +137,4 @@ class CuentaDAO {
         return $result;
     }
 
-    // Estos métodos permiten usar el modo transaccional para operaciones de persistencia de cuentas.
-
-    public function beginTransaction() {
-        $this->pdo->beginTransaction();
-    }
-
-
-    public function commit() {
-        $this->pdo->commit();
-    }
-
-    public function rollback() {
-        $this->pdo->rollback();
-    }
 }

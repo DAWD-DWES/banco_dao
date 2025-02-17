@@ -1,5 +1,6 @@
 <?php
 
+require_once "../src/BD/BD.php";
 require_once "../src/modelo/Cliente.php";
 require_once "../src/modelo/Cuenta.php";
 require_once "../src/modelo/CuentaCorriente.php";
@@ -357,13 +358,14 @@ class Banco {
      * @return bool
      */
     public function realizaTransferencia(string $dniClienteOrigen, string $dniClienteDestino, int $idCuentaOrigen, int $idCuentaDestino, float $cantidad): void {
+        $bd = BD::getConexion();
         try {
-            $this->cuentaDAO->beginTransaction();
+            $bd->beginTransaction();
             $this->debitoCuentaCliente($dniClienteOrigen, $idCuentaOrigen, $cantidad, "Transferencia de $cantidad € desde su cuenta $idCuentaOrigen a la cuenta $idCuentaDestino");
             $this->ingresoCuentaCliente($dniClienteDestino, $idCuentaDestino, $cantidad, "Transferencia de $cantidad € desde la cuenta $idCuentaOrigen a su cuenta $idCuentaDestino");
-            $this->cuentaDAO->commit();
+            $bd->commit();
         } catch (Exception $ex) {
-            $this->cuentaDAO->rollback();
+            $bd->rollback();
             throw $ex;
         }
     }
