@@ -117,7 +117,8 @@ abstract class Cuenta implements IProductoBancario {
     public function ingreso(float $cantidad, string $descripcion): void {
         if ($cantidad > 0) {
             $operacion = new Operacion($this->getId(), TipoOperacion::INGRESO, $cantidad, $descripcion);
-            $this->operacionDAO->crear($operacion);
+            $operacionId = $this->operacionDAO->crear($operacion);
+            $operacion->setId($operacionId);
             $this->agregaOperacion($operacion);
             $this->setSaldo($this->getSaldo() + $cantidad);
         }

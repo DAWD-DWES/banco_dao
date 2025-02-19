@@ -21,7 +21,8 @@ class CuentaCorriente extends Cuenta {
      */
     public function debito(float $cantidad, string $descripcion): void {
             $operacion = new Operacion($this->getId(), TipoOperacion::DEBITO, $cantidad, $descripcion);
-            $this->operacionDAO->crear($operacion);
+            $operacionId = $this->operacionDAO->crear($operacion);
+            $operacion->setId($operacionId);
             $this->agregaOperacion($operacion);
             $this->setSaldo($this->getSaldo() - $cantidad);
     }
