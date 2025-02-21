@@ -27,9 +27,9 @@ abstract class Cuenta implements IProductoBancario {
 
     /**
      * Timestamp de Fecha y hora de creación de la cuenta
-     * @var int
+     * @var string
      */
-    private int $fechaCreacion;
+    private string $fechaCreacion;
 
     /**
      * Tipo de la cuenta
@@ -69,8 +69,8 @@ abstract class Cuenta implements IProductoBancario {
     }
 
     public function getFechaCreacion(): DateTime {
-        $fecha = new DateTime();
-        return $fecha->setTimestamp($this->fechaCreacion);
+        $fecha = new DateTime($this->fechaCreacion);
+        return $fecha;
     }
 
     public function getTipo(): TipoCuenta {
@@ -94,7 +94,7 @@ abstract class Cuenta implements IProductoBancario {
     }
 
     public function setFechaCreacion(DateTime $fechaCreacion): void {
-        $this->fechaCreacion = $fechaCreacion->getTimestamp();
+        $this->fechaCreacion = $fechaCreacion->format('Y-m-d H:i:s');
     }
 
     public function setIdCliente(int $idCliente): void {
