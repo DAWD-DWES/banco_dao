@@ -208,7 +208,8 @@ class Banco {
      */
     public function altaCliente(string $dni, string $nombre, string $apellido1, string $apellido2, string $telefono, string $fechaNacimiento): void {
         $cliente = new Cliente($dni, $nombre, $apellido1, $apellido2, $telefono, new DateTime($fechaNacimiento));
-        $this->clienteDAO->crear($cliente);
+        $idCliente = $this->clienteDAO->crear($cliente);
+        $cliente->setId($idCliente);
     }
 
     /**
@@ -323,7 +324,8 @@ class Banco {
         $cuenta = $this->obtenerCuenta($idCuenta);
         if ($cliente->getId() === $cuenta->getIdCliente()) {
             $operacion = $cuenta->ingreso($cantidad, $descripcion);
-            $this->cuentaDAO->registraOperacion($operacion);
+            $idOperacion = $this->operacionDAO->crear($operacion);
+            $operacion->setId($idOperacion);
             $this->cuentaDAO->modificar($cuenta);
         } else {
             throw new CuentaNoPerteneceClienteException($dni, $idCuenta);
@@ -342,7 +344,8 @@ class Banco {
         $cuenta = $this->obtenerCuenta($idCuenta);
         if ($cliente->getId() === $cuenta->getIdCliente()) {
             $operacion = $cuenta->debito($cantidad, $descripcion);
-            $this->cuentaDAO->registraOperacion($operacion);
+            $idOperacion = $this->operacionDAO->crear($operacion);
+            $operacion->setId($idOperacion);
             $this->cuentaDAO->modificar($cuenta);
         } else {
             throw new CuentaNoPerteneceClienteException($dni, $idCuenta);
@@ -383,7 +386,8 @@ class Banco {
         $minSaldoComisionCC = $this->getMinSaldoComisionCC();
         array_walk($cuentasCorrientes, function ($cuentaCC) use ($comisionCC, $minSaldoComisionCC) {
             $operacion = $cuentaCC->aplicaComision($comisionCC, $minSaldoComisionCC);
-            $this->cuentaDAO->registraOperacion($operacion);
+            $idOperacion = $this->operacionDAO->crear($operacion);
+            $operacion->setId($idOperacion);
             $this->cuentaDAO->modificar($cuentaCC);
         });
     }
@@ -396,7 +400,8 @@ class Banco {
 
         array_walk($cuentasAhorros, function ($cuentaCA) use ($interesCA) {
             $operacion = $cuentaCA->aplicaInteres($interesCA);
-            $this->cuentaDAO->registraOperacion($operacion);
+            $idOperacion = $this->operacionDAO->crear($operacion);
+            $operacion->setId($idOperacion);
             $this->cuentaDAO->modificar($cuentaCA);
         });
     }

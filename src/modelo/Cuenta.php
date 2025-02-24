@@ -112,7 +112,7 @@ abstract class Cuenta implements IProductoBancario {
      * @param type $descripcion Descripción del ingreso
      */
     public function ingreso(float $cantidad, string $descripcion): Operacion {
-        if ($cantidad > 0) {
+        if ($cantidad >= 0) {
             $operacion = new Operacion($this->getId(), TipoOperacion::INGRESO, $cantidad, $descripcion);
             $this->agregaOperacion($operacion);
             $this->setSaldo($this->getSaldo() + $cantidad);

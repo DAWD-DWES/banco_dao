@@ -139,11 +139,4 @@ class CuentaDAO {
         return $cuenta;
     }
     
-    public function registraOperacion(Operacion $operacion): int {
-        $operacionId = $this->operacionDAO->crear($operacion);
-        $operacion->setId($operacionId);
-        return $operacionId;
-        
-    }
-    
 }
