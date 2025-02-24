@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `clientes` (
 CREATE TABLE IF NOT EXISTS `cuentas` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `cliente_id` int(11) NOT NULL,
-  `tipo` enum('Cuenta Corriente','Cuenta Ahorros') NOT NULL,
+  `tipo` enum('CuentaCorriente','CuentaAhorros') NOT NULL,
   `saldo` decimal(10,2) NOT NULL,
   `fecha_creacion` datetime NOT NULL DEFAULT current_timestamp(),
   `libreta` tinyint(1) DEFAULT NULL,

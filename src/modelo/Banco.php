@@ -248,7 +248,7 @@ class Banco {
      */
     public function altaCuentaCorrienteCliente(string $dni): int {
         $cliente = $this->obtenerCliente($dni);
-        $cuenta = new CuentaCorriente($this->operacionDAO, $cliente->getId());
+        $cuenta = new CuentaCorriente($cliente->getId());
         $idCuenta = $this->cuentaDAO->crear($cuenta);
         $cuenta->setId($idCuenta);
         return $cuenta->getId();
@@ -262,7 +262,7 @@ class Banco {
      */
     public function altaCuentaAhorrosCliente(string $dni, bool $libreta = false): int {
         $cliente = $this->obtenerCliente($dni);
-        $cuenta = new CuentaAhorros($this->operacionDAO, $cliente->getId(), $libreta, $this->getBonificacionCA());
+        $cuenta = new CuentaAhorros($cliente->getId(), $libreta, $this->getBonificacionCA());
         $idCuenta = $this->cuentaDAO->crear($cuenta);
         $cuenta->setId($idCuenta);
         return $cuenta->getId();
@@ -322,7 +322,8 @@ class Banco {
         $cliente = $this->obtenerCliente($dni);
         $cuenta = $this->obtenerCuenta($idCuenta);
         if ($cliente->getId() === $cuenta->getIdCliente()) {
-            $cuenta->ingreso($cantidad, $descripcion);
+            $operacion = $cuenta->ingreso($cantidad, $descripcion);
+            $this->cuentaDAO->registraOperacion($operacion);
             $this->cuentaDAO->modificar($cuenta);
         } else {
             throw new CuentaNoPerteneceClienteException($dni, $idCuenta);
@@ -340,7 +341,8 @@ class Banco {
         $cliente = $this->obtenerCliente($dni);
         $cuenta = $this->obtenerCuenta($idCuenta);
         if ($cliente->getId() === $cuenta->getIdCliente()) {
-            $cuenta->debito($cantidad, $descripcion);
+            $operacion = $cuenta->debito($cantidad, $descripcion);
+            $this->cuentaDAO->registraOperacion($operacion);
             $this->cuentaDAO->modificar($cuenta);
         } else {
             throw new CuentaNoPerteneceClienteException($dni, $idCuenta);
@@ -380,7 +382,8 @@ class Banco {
         $comisionCC = $this->getComisionCC();
         $minSaldoComisionCC = $this->getMinSaldoComisionCC();
         array_walk($cuentasCorrientes, function ($cuentaCC) use ($comisionCC, $minSaldoComisionCC) {
-            $cuentaCC->aplicaComision($comisionCC, $minSaldoComisionCC);
+            $operacion = $cuentaCC->aplicaComision($comisionCC, $minSaldoComisionCC);
+            $this->cuentaDAO->registraOperacion($operacion);
             $this->cuentaDAO->modificar($cuentaCC);
         });
     }
@@ -392,7 +395,8 @@ class Banco {
         $interesCA = $this->getInteresCA();
 
         array_walk($cuentasAhorros, function ($cuentaCA) use ($interesCA) {
-            $cuentaCA->aplicaInteres($interesCA);
+            $operacion = $cuentaCA->aplicaInteres($interesCA);
+            $this->cuentaDAO->registraOperacion($operacion);
             $this->cuentaDAO->modificar($cuentaCA);
         });
     }

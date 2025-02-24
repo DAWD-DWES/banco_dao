@@ -11,11 +11,11 @@ require_once '../src/dao/OperacionDAO.php';
 require_once '../src/dao/CuentaDAO.php';
 require_once '../src/dao/ClienteDAO.php';
 
-$pdo = BD::getConexion();
+$bd = BD::getConexion();
 
-$operacionDAO = new OperacionDAO($pdo);
-$cuentaDAO = new CuentaDAO($pdo, $operacionDAO);
-$clienteDAO = new ClienteDAO($pdo, $cuentaDAO);
+$operacionDAO = new OperacionDAO($bd);
+$cuentaDAO = new CuentaDAO($bd, $operacionDAO);
+$clienteDAO = new ClienteDAO($bd, $cuentaDAO);
 
 $banco = new Banco($clienteDAO, $cuentaDAO, $operacionDAO, "Midas", [3, 1000], [1.5, 0.5]);
 

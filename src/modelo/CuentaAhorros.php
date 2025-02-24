@@ -12,10 +12,10 @@ class CuentaAhorros extends Cuenta {
     private float $bonificacion;
     private bool $libreta;
 
-    public function __construct(OperacionDao $operacionDAO, string $idCliente, bool $libreta = false, float $bonificacion = 0, float $saldo = 0, string $fechaCreacion = "now") {
+    public function __construct(string $idCliente, bool $libreta = false, float $bonificacion = 0, float $saldo = 0, string $fechaCreacion = "now") {
         $this->libreta = $libreta;
         $this->bonificacion = $bonificacion;
-        parent::__construct($operacionDAO, $idCliente, TipoCuenta::AHORROS, $saldo, $fechaCreacion);
+        parent::__construct($idCliente, TipoCuenta::AHORROS, $saldo, $fechaCreacion);
     }
 
     public function getLibreta(): bool {
@@ -34,9 +34,9 @@ class CuentaAhorros extends Cuenta {
         $this->bonificacion = $bonificacion;
     }
     
-    public function ingreso(float $cantidad, string $descripcion): void {
+    public function ingreso(float $cantidad, string $descripcion): Operacion {
           $cantidadBonificada = $cantidad * (1 + ($this->getBonificacion() / 100));
-        parent::ingreso($cantidadBonificada, $descripcion);
+        return (parent::ingreso($cantidadBonificada, $descripcion));
     }
     
     /**
@@ -45,21 +45,21 @@ class CuentaAhorros extends Cuenta {
      * @param type $descripcion Descripcion del debito
      * @throws SaldoInsuficienteException
      */
-    public function debito(float $cantidad, string $descripcion): void {
+    public function debito(float $cantidad, string $descripcion): Operacion {
         if ($cantidad <= $this->getSaldo()) {
             $operacion = new Operacion($this->getId(), TipoOperacion::DEBITO, $cantidad, $descripcion);
-            $operacionId = $this->operacionDAO->crear($operacion);
-            $operacion->setId($operacionId);
             $this->agregaOperacion($operacion);
             $this->setSaldo($this->getSaldo() - $cantidad);
+            return $operacion;
         } else {
             throw new SaldoInsuficienteException($this->getId(), $cantidad);
         }
     }
 
-    public function aplicaInteres(float $interes): void {
+    public function aplicaInteres(float $interes): Operacion {
         $intereses = $this->getSaldo() * $interes / 100;
-        $this->ingreso($intereses, "Intereses a tu favor.");
+        $operacion = $this->ingreso($intereses, "Intereses a tu favor.");
+        return $operacion;
     }
 
     public function __toString(): string {
