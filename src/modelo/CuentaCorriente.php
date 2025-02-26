@@ -25,12 +25,10 @@ class CuentaCorriente extends Cuenta {
         return $operacion;
     }
 
-    public function aplicaComision($comision, $minSaldo): Operacion {
+    public function aplicaComision($comision, $minSaldo): ?Operacion {
         if ($this->getSaldo() < $minSaldo) {
             $operacion = $this->debito($comision, "Cargo de comisión de mantenimiento");
-            return $operacion;
-        } else {
-            throw new SaldoInsuficienteException($this->getId(), $comision);
         }
+        return $operacion ?? null;
     }
 }

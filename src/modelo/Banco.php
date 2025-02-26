@@ -386,9 +386,11 @@ class Banco {
         $minSaldoComisionCC = $this->getMinSaldoComisionCC();
         array_walk($cuentasCorrientes, function ($cuentaCC) use ($comisionCC, $minSaldoComisionCC) {
             $operacion = $cuentaCC->aplicaComision($comisionCC, $minSaldoComisionCC);
-            $idOperacion = $this->operacionDAO->crear($operacion);
-            $operacion->setId($idOperacion);
-            $this->cuentaDAO->modificar($cuentaCC);
+            if ($operacion) {
+                $idOperacion = $this->operacionDAO->crear($operacion);
+                $operacion->setId($idOperacion);
+                $this->cuentaDAO->modificar($cuentaCC);
+            }
         });
     }
 

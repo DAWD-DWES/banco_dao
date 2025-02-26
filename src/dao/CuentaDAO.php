@@ -118,7 +118,7 @@ class CuentaDAO {
         $sql = "SELECT id, cliente_id as idCliente, tipo, saldo, fecha_creacion as fechaCreacion, libreta, bonificacion FROM cuentas;";
         $stmt = $this->bd->query($sql);
         $cuentasDatos = $stmt->fetchAll(PDO::FETCH_OBJ);
-        return array_map(fn($datos) => $this->crearCuenta($datos), $cuentasDatos);
+        return array_filter(array_map(fn($datos) => $this->crearCuenta($datos), $cuentasDatos));
     }
 
     /**
@@ -133,10 +133,11 @@ class CuentaDAO {
             TipoCuenta::CORRIENTE->value => (new CuentaCorriente($datosCuenta->idCliente, (float) $datosCuenta->saldo, $datosCuenta->fechaCreacion)),
             default => null
         };
-        $cuenta->setId($datosCuenta->id);
-        $operaciones = $this->operacionDAO->recuperaPorIdCuenta($datosCuenta->id);
-        $cuenta->setOperaciones($operaciones);
-        return $cuenta;
+        if ($cuenta) {
+            $cuenta->setId($datosCuenta->id);
+            $operaciones = $this->operacionDAO->recuperaPorIdCuenta($datosCuenta->id);
+            $cuenta->setOperaciones($operaciones);
+        }
+        return $cuenta ?? null;
     }
-    
 }
