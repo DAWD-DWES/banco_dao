@@ -87,7 +87,7 @@ class ClienteDAO {
         $stmt->setFetchMode(PDO::FETCH_CLASS, Cliente::class);
         $cliente = $stmt->fetch();
         if ($cliente) {
-            $cliente->setIdCuentas($this->cuentaDAO->recuperaIdCuentasPorClienteId($this->getId()));
+            $cliente->setIdCuentas($this->cuentaDAO->recuperaIdCuentasPorClienteId($cliente->getId()));
         }
         return $cliente ?: null;
     }
